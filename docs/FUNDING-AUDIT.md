@@ -4,6 +4,8 @@
 **For:** Fin / Anamata Kāhui Limited
 **Purpose:** Map every gap between the current scaffold and what a 2026 NZ cultural funder assessor would expect to see, ranked by impact. The platform itself is the evidence in funding applications — so each gap is treated as an application-strengthener, not just a tech ticket.
 
+**Companion technical audit:** `AUDIT-FUNDING.md` in this directory — file-by-file inventory, missing columns, broken routes, every concrete thing to build.
+
 ---
 
 ## 0. How to read this document
@@ -20,6 +22,16 @@ Each row is shaped as:
 
 Sections are ranked from **cheapest-and-fastest** to **most-expensive-but-highest-payoff**. Every item is something the platform can visibly demonstrate to a funder.
 
+**Live evidence — quoted funder language (2025–2026):**
+
+- Creative NZ Quality of Programme Delivery scale: *"Achieved — The organisation has delivered all aspects of the programme as agreed… Minor concerns — The organisation has delivered most aspects of the programme and has still achieved contracted Investment Feature Outcomes."* (Source: `creativenz.govt.nz/.../assessment-criteria`)
+- Te Mana Raraunga Charter: *"All data is potential taonga in relation to its utility, through technology or usefulness to the collective."* — Dr Will Edwards, Ngāruahine.
+- Te Mana Raraunga Principles: *"He taonga te data i tangohia mai i te tangata, i te mea ora."* — Moe Milne, Ngāti Hine.
+- Te Mātāwai (Te Arawa Kāhui): *"Prioritise investment in activities delivered within Te Kāhui o Te Arawa. May consider applications from uri living outside of the Kāhui, if the activity benefits Te Arawa uri."*
+- Te Mātāwai (Te Reo Tukutuku): *"Prioritise applications connected to a legacy group. Advise Kaitono not to apply for the same activity in another Kāhui."*
+- NZ On Air Investment Model: *"Capability: Building the skills, knowledge, and capacity of our team and funded creators to adapt to changing media landscapes and emerging technologies, and to drive innovation and creativity in the sector."*
+- Patronage NZ analysis (May 2026): of 656 Creative NZ applications, only 52 were funded — *"just 5.9 cents for every dollar asked for."* Funded cohort skews toward *"established or senior career stage"* with *"professional ties to CNZ investment programme organisations."* **Visibility and institutional legibility dominate.**
+
 ---
 
 ## 1. The wedge: what makes Anamata's pitch structurally different
@@ -28,12 +40,12 @@ The current Kāhui platform already has structural advantages no other NZ label/
 
 | Wedge | Funder language it answers |
 |---|---|
-| **Four branches, one entity** | Creative NZ's "ecosystem" framing; multi-discipline; Vision Mātauranga Whakawhanake theme |
-| **Kaitiaki-gated catalog** | Te Mana Raraunga Māori data sovereignty; CARE+FAIR principles; iwi consent |
-| **Trilingual digital infrastructure** (planned) | Accessibility for tāngata whaikaha Māori; NZSL + te reo Māori |
-| **Live evidence of cultural review pipeline** | "Māori-led but sector-integrated" (Maurea, MMIC, SoundCheck) |
-| **Public-facing governance docs** | Te Tiriti o Waitangi in operations — not just a mission statement |
-| **Open-source Kāhui platform** | "Digital infrastructure as cultural infrastructure" — currently rare in NZ music |
+| **Four branches, one entity** | Te Mātāwai has **both geographic Kāhui ā-Iwi *and* sector-based Te Reo Tukutuku** (Te Hapori · Te Hunga Noho Tāone · Te Mātauranga · Te Pāpāho). Anamata's music + research + arts + tech maps **exactly** onto the four Te Reo Tukutuku sector streams. Most applicants are single-sector — multi-sector + multi-Kāhui collaboration is structurally accommodated by Te Mātāwai and rare in practice. |
+| **Kaitiaki-gated catalog** | Te Mana Raraunga's CARE principles + their Charter: *"All data is potential taonga in relation to its utility."* Funders asking for kaitiakitanga of cultural data (HRC Māori Health Advancement, Te Mātāwai Pae Motuhake) get a Supabase-backed, RLS-enforced answer — not a paragraph of intent. |
+| **Trilingual digital infrastructure** (planned) | Accessibility for tāngata whaikaha Māori; NZSL is recognised under NZSL Act 2006; Easy Read is one of the few NZ Government accessibility standards with named uptake. |
+| **Live evidence of cultural review pipeline** | Te Mātāwai requires *"a letter of endorsement from their hapū, marae, or iwi"* and *"a copy of any resource funded through Pae investment"* — our live transparency page satisfies both. |
+| **Public-facing governance docs** | Te Tiriti o Waitangi in operations — not just a mission statement. Funder-coded language is *"we are accountable to [named iwi]"* not *"we work with Māori."* |
+| **Open-source Kāhui platform** | NZ On Air's explicit language: *"leveraging the digital technologies to reach and engage with our audiences… adapt to changing media landscapes and emerging technologies."* No funder asks "do you have a dashboard" — but the wording that exists rewards exactly this. |
 
 The platform's job is to **make these visible by default**, not buried in a "About" page.
 
@@ -449,4 +461,108 @@ The platform is **structurally sound**. The funding audit gaps are content + pag
 
 ---
 
-*Last updated: scaffold audit run. Update after each Phase ships.*
+## 9. CRITICAL — Bugs caught by scaffold audit (must fix before funders see the live site)
+
+The technical audit (`AUDIT-FUNDING.md`) caught real issues that would damage credibility if a funder navigates the live site:
+
+### 9.1 Dead forms (immediate credibility hit)
+
+| Form | Posts to | Status |
+|---|---|---|
+| `/contact` | `/api/contact` | ❌ route handler missing |
+| `/login` | `/api/auth/login` | ❌ route handler missing |
+| `/register` | `/api/auth/register` | ❌ route handler missing |
+| `/reset-password` | `/api/auth/reset` | ❌ route handler missing |
+| Dashboard logout | `/api/auth/logout` | ❌ route handler missing |
+
+**Why this matters for funding:** A funder testing the live site will hit `/contact` and discover the form does nothing. **This is the most damaging single issue** — fix before anything else.
+
+**Cost:** ~1 day. Wire up `@supabase/ssr` server actions for auth; add a contact-form server action using Resend (already proven in the Records site).
+
+### 9.2 Broken routes (404s in 30 seconds)
+
+- `/arts` branch landing CTA → `/arts` (same page) — **circular**. Should go to `/arts/dashboard`.
+- `/releases/{id}` — referenced from two pages, page missing.
+- `/{slug}/dashboard` — middleware checks these paths but they 404 for everything except records/research/dev.
+
+### 9.3 Missing schema pieces a funder assessor would notice
+
+- **`kaitiaki` role missing from `profiles.role` enum** — current enum is `super_admin · branch_admin · artist · researcher · client`. No `kaitiaki`. This is the *single most important missing enum value* for cultural-governance credibility.
+- **No `iwi_gates`, no `kaitiaki_consents`, no `consent_log`** tables. The `releases` table has no `iwi_consent_id`, no `language_code`, no `access_tier`. The `profiles` table has no `iwi_affiliation`, no `te_reo_proficiency`, no `preferred_language`.
+- **Storage buckets commented out in the migration** — no place to put cover art, stems, or research PDFs.
+
+### 9.4 SEO / discoverability missing
+
+- No `sitemap.ts`, no `robots.ts`, no `opengraph-image.tsx`, no `twitter-image.tsx`, no JSON-LD structured data, no RSS.
+- `<html lang="en">` hard-coded — blocks the te reo Māori variant.
+- `vercel.json` security headers missing HSTS and CSP.
+
+### 9.5 The 5-pillar framework (extends the winning 2-pillar pattern)
+
+The 2026 winning application used **Cultural Competency + Accessibility** as two pillars. Research across live 2025–2026 funder criteria suggests a **5-pillar framework** that scores higher across all funder types:
+
+| Pillar | What the platform can demonstrate | Funders it satisfies |
+|---|---|---|
+| **Cultural Competency** | VM-themed tagging (Taiao · Hauora · Mātauranga · Whakawhanake · Oranga), iwi endorsement register, te reo Māori-first navigation | Creative NZ, Te Mātāwai, Royal Society Te Apārangi |
+| **Accessibility** | NZSL video + Easy Read + screen-reader tested, trilingual UI | Creative NZ Community Access, Te Haeata (TPK) |
+| **Māori Data Sovereignty** | Supabase RLS, Te Mana Raraunga CARE-aligned kaitiakitanga statement, public data charter, withdrawal mechanism | Te Mana Raraunga Charter, HRC Māori Advancement, Te Mātāwai IP/data return |
+| **Outcomes & Evaluation** | Live outcomes dashboard, theory-of-change visualisation, real-time funder reporting | Creative NZ IPG 2025 "Investment Feature Outcomes", Patronage analysis (visibility wins) |
+| **Digital Infrastructure** | The platform itself — Next.js + Supabase + public dashboards | NZ On Air "digital technologies" / "emerging technologies" language |
+
+**Strongest differentiators, ranked:**
+
+1. **Visible, platform-embedded Māori data sovereignty** (Supabase RLS + Te Mana Raraunga charter + iwi data-sharing). Almost no arts applicants do this.
+2. **Multi-branch ecosystem framing that maps onto Te Mātāwai's four Te Reo Tukutuku sectors.** Music + research + arts + tech fits exactly.
+3. **Live outcomes dashboard visible to assessors during application.** Most applicants send PDFs.
+4. **NZSL-first design and Easy Read summaries.** Concrete accessibility beyond lip service.
+5. **Te Taiao framing for environmental sustainability.** Emerging, not yet required — but by 2027/2028 will be table stakes.
+
+**Table stakes (must do, but won't differentiate):** VM theme tagging, kaitiakitanga statement, te reo Māori-first navigation, partnership register, co-design evidence.
+
+---
+
+## 10. Recommended sequencing
+
+### Pre-Funding-Wave 1 — Fix the blockers (1 week)
+
+These are **all 9.1–9.4 above** — wire up API routes, fix circular CTA, add `kaitiaki` role to enum, add basic iwi/consent tables, add sitemap + OG + robots. Without this, no other work matters because a funder clicking through the site hits broken pages.
+
+### Funding-Wave 1 — Build the 5-pillar evidence (2–3 weeks)
+
+In parallel:
+- **`/transparency`** — live governance + cultural review dashboard (§2.1)
+- **`/kaitiakitanga`** — Māori data sovereignty statement (§2.3)
+- **`/impact`** — outcomes dashboard (§2.2)
+- **`/governance`** — kaitiaki rōpū, terms, public minutes (§2.6 + audit §7.2)
+- **`/accessibility`** — WCAG statement + named reviewer + last-reviewed date (§2.10)
+- **`/evidence`** — partner profiles for the 6 named partners (§2.5)
+- Te reo Māori landing (`/mi`) + `lang` switching — audit §6
+- Add `iwi_affiliation`, `te_reo_proficiency`, `preferred_language` to profiles table — audit §3.2
+
+### Funding-Wave 2 — Trilingual infrastructure (2–3 weeks, depending on NZSL video budget)
+
+- NZSL video hero on `/` (budgeted)
+- Easy Read variant
+- Skip-to-content link, `prefers-reduced-motion`, `forced-colors`, `<noscript>` fallback
+- HSTS + CSP headers
+
+### Funding-Wave 3 — Differentiators (2 weeks)
+
+- **`/open-source`** — position the platform itself as cultural infrastructure
+- **`/sustainability`** — Te Taiao commitment
+- **`/funding`** — public funding transparency
+- **`/waiata/[slug]`** — per-release pages with full cultural metadata
+- **`/artist`** — public artist roster
+
+### Funding-Wave 4 — Depth (ongoing)
+
+- `/releases/{id}` detail page
+- Arts dashboard
+- Research documents + field projects
+- Per-artist analytics
+- Audit log dashboard
+- CSV/JSON metrics export for funder quarterly reports
+
+---
+
+*Last updated: scaffold + research audit run. Update after each Phase ships.*
