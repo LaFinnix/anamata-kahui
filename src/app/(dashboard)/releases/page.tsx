@@ -1,10 +1,11 @@
-import { Plus, Upload, GitBranch, Library } from "lucide-react";
+import { Upload } from "lucide-react";
 import Link from "next/link";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CreateReleaseForm } from "@/components/music/create-release-form";
 
 export const metadata = {
   title: "Release pipeline · Music (Anamata Records)",
@@ -24,6 +25,11 @@ export default async function ReleasesPage() {
     scheduled: releases?.filter((r) => r.status === "scheduled") ?? [],
     released:  releases?.filter((r) => r.status === "released")  ?? [],
   };
+
+  const { data: iwiGates } = await supabase
+    .from("iwi_gates")
+    .select("id, iwi_name, hapu_name, scope")
+    .order("iwi_name");
 
   return (
     <div className="space-y-8">
@@ -47,10 +53,7 @@ export default async function ReleasesPage() {
             <Upload className="h-4 w-4" />
             Upload stems
           </Button>
-          <Button disabled>
-            <Plus className="h-4 w-4" />
-            New release
-          </Button>
+          <CreateReleaseForm iwiGates={iwiGates ?? []} />
         </div>
       </div>
 

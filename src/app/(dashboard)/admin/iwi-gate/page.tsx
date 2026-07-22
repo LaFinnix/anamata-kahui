@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Shield, Plus, ExternalLink, Calendar } from "lucide-react";
+import { Shield, ExternalLink, Calendar } from "lucide-react";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CreateIwiGateForm } from "@/components/music/create-iwi-gate-form";
 
 export const metadata = { title: "Iwi gates" };
 export const revalidate = 0; // always fresh for kaitiaki
@@ -51,10 +52,7 @@ export default async function IwiGatesAdminPage() {
             track consent decisions, expiry, and iwi contact.
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4" />
-          New gate
-        </Button>
+        <CreateIwiGateForm />
       </div>
 
       {(!gates || gates.length === 0) ? (
