@@ -527,6 +527,43 @@ The 2026 winning application used **Cultural Competency + Accessibility** as two
 
 These are **all 9.1–9.4 above** — wire up API routes, fix circular CTA, add `kaitiaki` role to enum, add basic iwi/consent tables, add sitemap + OG + robots. Without this, no other work matters because a funder clicking through the site hits broken pages.
 
+### ✅ Pre-Funding-Wave 1 — COMPLETED 2026-07-22
+
+- All dead forms wired (login, register, reset-password, contact, logout)
+- `/arts` circular CTA → `/arts/dashboard`
+- `/releases/[id]` added
+- `/(dashboard)/arts` added
+- `kaitiaki` role + iwi_gates + consent_log + kaitiaki_roopu + contact_enquiries + data_governance_log shipped (migration 0002 + applied)
+- 5 storage buckets created
+- `sitemap.ts` + `robots.ts` + `opengraph-image.tsx` shipped
+- HSTS + CSP in `vercel.json`
+
+### ✅ Funding-Wave 1 — COMPLETED 2026-07-22 (extends 5-pillar evidence)
+
+- **`/transparency`** — live data via admin client (iwi_gates + governance_log live counts)
+- **`/kaitiakitanga`** — Te Mana Raraunga CARE principles + 6 commitments + Edwards/Milne quotes
+- **`/impact`** — live counts (released waiata, iwi gates, consent log, governance entries). Reach metrics honestly dashed until Spotify/Apple ingestion.
+- **`/governance`** — board, decision rights, kaitiaki rōpū, operational Tiriti
+- **`/accessibility`** — WCAG 2.2 AA statement, quarterly review window
+- **`/evidence`** — 6 named partners from winning CNZ app
+- **`/waiata` index + `/waiata/[slug]`** — per-release pages with cultural provenance (5m revalidate, SSG via generateStaticParams)
+- **`/artist`** — public directory of opted-in profiles
+- **`/funding`** — public grants transparency (2026 CNZ win published)
+- **`/open-source`** — platform positioning, MIT licence, self-host
+- **`/sustainability`** — Te Taiao commitment
+- **`/(dashboard)/admin/iwi-gate`** — kaitiaki admin view
+- Te reo Māori translation catalogue (12 future locales pre-wired) + LanguageSwitcher in header
+
+### Pre-Wave 2 — DB seeding (live data behind the live pages)
+
+- 5 iwi_gates seeded (Ngāti Kahungunu, Ngāi Tahu, Ngāti Porou, Tūhoe, Pan-iwi)
+- 4 published data_governance_log entries (Charter, CARE, withdrawal policy, changelog)
+- 24 waiata imported into `public.releases` via `scripts/import_catalog.mjs` — all carry iwi_consent_id linkages, language_code=mi, cultural_sensitivity
+- Anamata Records artist profile created (system user via Supabase admin API, handle_new_user trigger fired, role=artist)
+- `scripts/funding_radar.py` parses TRACKER.md → JSON; identifies Outward Sound Round 4 closing 27 Jul (5d) as the next-deadline opportunity
+- `home /` shows live counts (released waiata, iwi gates, branches)
+- `scripts/import_catalog.mjs` — re-runnable catalog → Supabase importer
+
 ### Funding-Wave 1 — Build the 5-pillar evidence (2–3 weeks)
 
 In parallel:
