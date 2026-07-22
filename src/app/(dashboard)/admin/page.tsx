@@ -5,6 +5,7 @@ import { Activity, Users, Music, FileText } from "lucide-react";
 import { createServerSupabase } from "@/lib/supabase/clients";
 import { Card, CardDescription, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ActiveContextBanner } from "@/components/kahui/active-context-banner";
 
 export const metadata = { title: "Admin overview" };
 
@@ -31,6 +32,7 @@ export default async function AdminOverviewPage() {
 
   return (
     <div className="space-y-8">
+      <ActiveContextBanner />
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-display font-semibold tracking-tight">

@@ -20,12 +20,15 @@ import {
   Terminal,
   Library,
   Compass,
+  ChevronDown,
 } from "lucide-react";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
 import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "@/components/auth/logout-button";
 import type { UserRole } from "@/lib/types";
+import { getActiveContext, BRANCH_LABELS, BRANCH_ROLE_LABELS, type BranchSlug, type BranchRole } from "@/lib/auth/active-context";
+import { BranchSwitcher } from "@/components/kahui/branch-switcher";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -148,16 +151,44 @@ export default async function DashboardLayout({
 
   // Fetch branch membership (only if not super_admin — super_admin sees everything).
   const branchSlugs = new Set<string>();
+  let memberships: { branch_slug: BranchSlug; role_in_branch: BranchRole; branch_id: string }[] = [];
   if (!isSuperAdmin) {
-    const { data: memberships } = await supabase
+    const { data } = await supabase
       .from("user_branches")
-      .select("branch_id, branches:branch_id(slug)")
+      .select("branch_id, role, branches:branch_id(slug)")
       .eq("user_id", user.id);
-    for (const m of memberships ?? []) {
+    for (const m of data ?? []) {
       const slug = (m.branches as unknown as { slug?: string } | null)?.slug;
-      if (slug) branchSlugs.add(slug);
+      if (slug) {
+        branchSlugs.add(slug);
+        memberships.push({
+          branch_slug: slug as BranchSlug,
+          role_in_branch: m.role as BranchRole,
+          branch_id: m.branch_id,
+        });
+      }
     }
+  } else {
+    // Super admins: fetch all branches for the switcher
+    const { data: branches } = await supabase
+      .from("branches")
+      .select("id, slug");
+    memberships = (branches ?? [])
+      .filter((b) => b.slug)
+      .map((b) => ({
+        branch_slug: b.slug as BranchSlug,
+        role_in_branch: "lead" as BranchRole,
+        branch_id: b.id,
+      }));
   }
+
+  // Active branch context (cookie-driven)
+  const activeContext = await getActiveContext(memberships, role);
+  // For super_admin, allow switching to any branch
+  const availableBranches = memberships.map((m) => ({
+    branch_slug: m.branch_slug,
+    role_in_branch: m.role_in_branch,
+  }));
 
   // Filter groups: role + branch membership
   const visibleGroups = NAV_GROUPS.filter((group) => {
@@ -209,11 +240,20 @@ export default async function DashboardLayout({
         </nav>
 
         <div className="border-t border-border p-4">
-          <div className="mb-3 flex items-center gap-3">
+          {/* Active branch + role — with switcher */}
+          <BranchSwitcher
+            active={{
+              branch_slug: activeContext.branch_slug,
+              role_in_branch: activeContext.role_in_branch,
+            }}
+            available={availableBranches}
+          />
+
+          <div className="mb-3 mt-3 flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-bronze-400/15 text-sm font-medium text-bronze-200">
               {profile?.full_name?.[0] ?? user.email?.[0]?.toUpperCase() ?? "?"}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-medium">
                 {profile?.full_name ?? "Kāhui member"}
               </div>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CreateReleaseForm } from "@/components/music/create-release-form";
+import { ActiveContextBanner } from "@/components/kahui/active-context-banner";
 
 export const metadata = {
   title: "Release pipeline · Music (Anamata Records)",
@@ -33,6 +34,7 @@ export default async function ReleasesPage() {
 
   return (
     <div className="space-y-8">
+      <ActiveContextBanner />
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="mb-2 flex items-center gap-2">

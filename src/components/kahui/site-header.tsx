@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { BranchSwitcher } from "@/components/kahui/branch-switcher";
 import { LanguageSwitcher } from "@/components/kahui/language-switcher";
 import { Button } from "@/components/ui/button";
 
@@ -20,7 +19,6 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden md:flex md:items-center md:gap-1">
-          <BranchSwitcher />
           <Link
             href="/about"
             className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
