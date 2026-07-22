@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server";
+import type { NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "@/i18n/routing";
 import { updateSession } from "@/lib/supabase/middleware";
@@ -6,30 +6,34 @@ import { updateSession } from "@/lib/supabase/middleware";
 /**
  * Root proxy — Next 16's renamed middleware.
  *
- * Runs on every request. Composes two middlewares in order:
- *   1. next-intl locale middleware — adds locale prefix, negotiates first-visit
- *      language, persists user choice in a cookie.
- *   2. Supabase session refresh — refreshes the JWT, gates (dashboard) routes.
+ * Composes two middlewares:
+ *   1. next-intl locale handling — negotiates + persists user language.
+ *   2. Supabase session refresh + dashboard route protection.
  *
- * Order matters: locale first means an unauthed user hitting `/mi/admin`
- * is redirected to `/mi/login` (consistent UX) rather than `/en/login`.
+ * The locale middleware runs first. If it returns a redirect/rewrite we
+ * short-circuit. Otherwise we pass its response into updateSession as the
+ * passthrough so cookies set by the locale middleware survive.
+ *
+ * Note: dev-server route resolution can hit edge cases when locale + page
+ * trees are partially set up — see docs/FUNDING-AUDIT.md for the
+ * `[locale]` migration plan. Production builds are unaffected.
  */
 const intl = createIntlMiddleware(routing);
 
-export default async function proxy(request: NextRequest) {
-  // 1. Locale handling — may rewrite / redirect.
+export default async function proxy(request: NextRequest): Promise<NextResponse> {
+  // 1. Locale handling.
   const intlResponse = intl(request);
 
-  // If intl returned a redirect/rewrite, return it directly.
-  const isIntlRedirect =
-    intlResponse.headers.get("x-middleware-rewrite") !== null ||
-    intlResponse.headers.get("location") !== null;
-  if (isIntlRedirect) {
+  // Short-circuit on redirect/rewrite so the auth chain doesn't run.
+  if (
+    intlResponse.headers.get("location") !== null ||
+    intlResponse.headers.get("x-middleware-rewrite") !== null
+  ) {
     return intlResponse;
   }
 
   // 2. Supabase session refresh + dashboard route protection, carrying
-  //    through any cookies the intl middleware set.
+  //    through any cookies the locale middleware set.
   return updateSession(request, intlResponse);
 }
 

@@ -8,11 +8,12 @@ import { routing } from "@/i18n/routing";
 export default function robots(): MetadataRoute.Robots {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://anamatakahui.co.nz";
 
+  // With localePrefix: 'as-needed', only non-default locales need an allow entry.
   return {
     rules: [
       {
         userAgent: "*",
-        allow: routing.locales.map((l) => `/${l}`),
+        allow: ["/", "/mi"],
         disallow: ["/api/", "/admin", "/records", "/releases", "/analytics", "/research", "/dev"],
       },
     ],

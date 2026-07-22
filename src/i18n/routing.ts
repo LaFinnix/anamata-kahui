@@ -18,5 +18,17 @@ import { defineRouting } from "next-intl/routing";
 export const routing = defineRouting({
   locales: ["en", "mi"],
   defaultLocale: "en",
-  localePrefix: "always",
+  /**
+   * `as-needed` keeps the URLs clean while pages live outside the
+   * `[locale]` route group:
+   *   - English pages stay at `/about` (no `/en/about`).
+   *   - Māori pages live at `/mi/about` (the locale-prefixed URL).
+   *   - The locale switcher in the header writes the `/mi/...` form when
+   *     the user picks te reo Māori.
+   *
+   * Switch to `'always'` once pages are wrapped in `app/[locale]/...`,
+   * which is the production-ready state. The switcher already supports
+   * both URL forms.
+   */
+  localePrefix: "as-needed",
 });

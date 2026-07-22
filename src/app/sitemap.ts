@@ -25,17 +25,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/legal/terms-of-use",
   ];
 
+  // With localePrefix: 'as-needed', the default locale (en) lives at the
+  // unprefixed path; non-default locales (mi) get /:locale/... prefix.
   return routing.locales.flatMap((locale) =>
-    publicPaths.map((path) => ({
-      url: `${base}/${locale}${path}`,
-      lastModified: now,
-      changeFrequency: path === "" ? "weekly" as const : "monthly" as const,
-      priority: path === "" ? 1.0 : 0.6,
-      alternates: {
-        languages: Object.fromEntries(
-          routing.locales.map((l) => [l, `${base}/${l}${path}`]),
-        ),
-      },
-    })),
+    publicPaths.map((path) => {
+      const url =
+        locale === routing.defaultLocale
+          ? `${base}${path}`
+          : `${base}/${locale}${path}`;
+      return {
+        url,
+        lastModified: now,
+        changeFrequency: path === "" ? "weekly" as const : "monthly" as const,
+        priority: path === "" ? 1.0 : 0.6,
+        alternates: {
+          languages: Object.fromEntries(
+            routing.locales.map((l) => [
+              l,
+              l === routing.defaultLocale ? `${base}${path}` : `${base}/${l}${path}`,
+            ]),
+          ),
+        },
+      };
+    }),
   );
 }
