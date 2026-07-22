@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Database, Shield, Eye, FileText, Download, XCircle } from "lucide-react";
+import { Database, Shield, Eye, FileText, Download, XCircle, Globe } from "lucide-react";
+import { LocalContextsExplainer } from "@/components/local-contexts/explainer";
 
 export const metadata = {
   title: "Kaitiakitanga",
@@ -135,6 +136,92 @@ export default function KaitiakitangaPage() {
         <p className="mt-6 text-sm text-muted-foreground">
           Source: <a className="text-bronze-300 hover:text-bronze-200 underline" href="https://www.temanararaunga.maori.nz/our-charter" rel="noreferrer">Te Mana Raraunga Charter</a>.
         </p>
+      </section>
+
+      <section id="local-contexts" className="not-prose mt-16">
+        <div className="mb-4 flex items-center gap-2">
+          <Badge variant="outline" className="mb-0">Machine-readable provenance</Badge>
+        </div>
+        <h2 className="font-display text-2xl">Local Contexts Hub integration</h2>
+        <p className="mt-3 max-w-3xl text-muted-foreground">
+          Anamata Kāhui is integrated with the{" "}
+          <a
+            href="https://localcontexts.org"
+            target="_blank"
+            rel="noreferrer"
+            className="text-bronze-300 hover:text-bronze-200 underline"
+          >
+            Local Contexts Hub
+          </a>{" "}
+          — the international standard for Traditional Knowledge (TK),
+          Biocultural (BC), and notice labels. Every waiata, stem, and
+          research paper can carry machine-readable provenance metadata
+          that travels with the file.
+        </p>
+
+        <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <Database className="h-5 w-5 text-pounamu-300" />
+              <CardTitle className="text-lg">11 TK labels</CardTitle>
+              <CardDescription>
+                Traditional Knowledge usage protocols. TK Attribution,
+                Non-Commercial, Clan, Family, Outreach, Verified, Creative,
+                Secret/Sacred, plus gender / age gates.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <Globe className="h-5 w-5 text-bronze-300" />
+              <CardTitle className="text-lg">5 BC labels</CardTitle>
+              <CardDescription>
+                Biocultural origin. BC Provenance, BC Consent Verified,
+                BC Open to Collaboration, BC Consent Optional, BC Creative.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <Shield className="h-5 w-5 text-bronze-300" />
+              <CardTitle className="text-lg">5 Notices</CardTitle>
+              <CardDescription>
+                Researcher / community / kaitiaki notices. Open with CARE,
+                Open with Attribution, Research Only, Community Voice,
+                Kaitiaki Consultation.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+
+        <div className="mt-8">
+          <LocalContextsExplainer />
+        </div>
+
+        <div className="mt-8 rounded-lg border border-bronze-500/30 bg-bronze-900/20 p-6">
+          <h3 className="font-display text-lg">How labels travel with assets</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Labels attached to a release are emitted as{" "}
+            <strong>XMP (Extensible Metadata Platform) metadata</strong> in
+            PDFs, audio files, and image exports. Adobe tools, DaVinci
+            Resolve, web crawlers, and archival systems all parse XMP.
+            The labels therefore persist with the file wherever it goes —
+            not locked inside the platform.
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Active labels are also visible to every visitor on the
+            relevant public page (e.g.{" "}
+            <a href="/waiata" className="text-bronze-300 hover:text-bronze-200 underline">
+              /waiata
+            </a>
+            ,{" "}
+            <a href="/research/papers" className="text-bronze-300 hover:text-bronze-200 underline">
+              /research/papers
+            </a>
+            ) — funders and partners can verify provenance without
+            signing in.
+          </p>
+        </div>
       </section>
     </article>
   );

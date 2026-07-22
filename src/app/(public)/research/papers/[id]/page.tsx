@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/clients";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LocalContextsLabels } from "@/components/local-contexts/labels-display";
 
 export const revalidate = 600;
 
@@ -86,6 +87,15 @@ export default async function ResearchPaperPage({ params }: PageProps) {
       (r.metadata as { slug?: string })?.slug ?? r.title,
     ]),
   );
+
+  // Local Contexts labels for this paper
+  const { data: labelLinks } = await admin
+    .from("lc_label_links")
+    .select(
+      "id, release_id, research_document_id, label_id, applied_by, applied_at, evidence_url, scope, status, label:lc_labels(id, slug, family, label, description, canonical_url, requires_attribution, is_non_commercial)",
+    )
+    .eq("research_document_id", id)
+    .eq("status", "active");
 
   return (
     <article className="prose prose-invert mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
@@ -173,7 +183,9 @@ export default async function ResearchPaperPage({ params }: PageProps) {
         </section>
       )}
 
-      {(gate || (Array.isArray(paper.keywords) && paper.keywords.length > 0)) && (
+      {(gate ||
+        (Array.isArray(paper.keywords) && paper.keywords.length > 0) ||
+        (labelLinks && labelLinks.length > 0)) && (
         <section className="not-prose mt-10">
           <Card>
             <CardHeader>
@@ -203,6 +215,40 @@ export default async function ResearchPaperPage({ params }: PageProps) {
                   {gate.notes && (
                     <p className="mt-2 text-sm text-muted-foreground">{gate.notes}</p>
                   )}
+                </div>
+              )}
+              {labelLinks && labelLinks.length > 0 && (
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Local Contexts labels
+                  </div>
+                  <div className="mt-2">
+                    <LocalContextsLabels
+                      labels={(labelLinks ?? []).map((l) => ({
+                        id: l.id,
+                        release_id: l.release_id,
+                        research_document_id: l.research_document_id,
+                        label_id: l.label_id,
+                        applied_by: l.applied_by,
+                        applied_at: l.applied_at,
+                        evidence_url: l.evidence_url,
+                        scope: l.scope,
+                        status: l.status as "active",
+                        label: Array.isArray(l.label)
+                          ? l.label[0] ?? null
+                          : (l.label as unknown as {
+                              id: string;
+                              slug: string;
+                              family: "tk" | "bc" | "notice";
+                              label: string;
+                              description: string;
+                              canonical_url: string | null;
+                              requires_attribution: boolean;
+                              is_non_commercial: boolean;
+                            } | null) ?? undefined,
+                      }))}
+                    />
+                  </div>
                 </div>
               )}
               {Array.isArray(paper.keywords) && paper.keywords.length > 0 && (

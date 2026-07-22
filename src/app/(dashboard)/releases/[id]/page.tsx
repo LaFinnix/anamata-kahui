@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Hash, Music, Upload } from "lucide-react";
+import { ArrowLeft, Calendar, Hash, Music, ShieldCheck, Upload } from "lucide-react";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LabelManager } from "@/components/local-contexts/label-manager";
+import { getEmbeddedCatalogue } from "@/lib/local-contexts/client";
 
 export const metadata = { title: "Release" };
 
@@ -34,6 +36,15 @@ export default async function ReleaseDetailPage({ params }: PageProps) {
     .select("id, file_name, mime_type, size_bytes, created_at")
     .eq("release_id", id)
     .order("created_at", { ascending: false });
+
+  // Local Contexts labels for this release
+  const { data: labelLinks } = await supabase
+    .from("lc_label_links")
+    .select(
+      "id, release_id, research_document_id, label_id, applied_by, applied_at, evidence_url, scope, status, label:lc_labels(id, slug, family, label, description, canonical_url, requires_attribution, is_non_commercial)",
+    )
+    .eq("release_id", id)
+    .eq("status", "active");
 
   return (
     <div className="space-y-8">
@@ -91,6 +102,48 @@ export default async function ReleaseDetailPage({ params }: PageProps) {
                 </p>
               </CardContent>
             )}
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-bronze-300" />
+                Cultural provenance (Local Contexts)
+              </CardTitle>
+              <CardDescription>
+                Attach TK, BC, and notice labels from{" "}
+                <a
+                  href="https://localcontexts.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-bronze-300 hover:text-bronze-200 underline"
+                >
+                  localcontexts.org
+                </a>
+                . Each label becomes part of the asset's machine-readable provenance.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LabelManager
+                releaseId={release.id}
+                catalogue={getEmbeddedCatalogue()}
+                currentLinks={(labelLinks ?? []).map((l) => ({
+                  id: l.id,
+                  label: Array.isArray(l.label)
+                    ? l.label[0] ?? null
+                    : (l.label as unknown as {
+                        id: string;
+                        slug: string;
+                        family: "tk" | "bc" | "notice";
+                        label: string;
+                        description: string;
+                        canonical_url: string | null;
+                        requires_attribution: boolean;
+                        is_non_commercial: boolean;
+                      } | null),
+                }))}
+              />
+            </CardContent>
           </Card>
 
           <Card>

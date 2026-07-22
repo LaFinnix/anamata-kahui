@@ -2,9 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Calendar, Hash, Music, Shield } from "lucide-react";
 
-import { createServerSupabase, createAdminClient } from "@/lib/supabase/clients";
+import { createAdminClient, createServerSupabase } from "@/lib/supabase/clients";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LocalContextsLabels } from "@/components/local-contexts/labels-display";
+import { LocalContextsExplainer } from "@/components/local-contexts/explainer";
 
 export const revalidate = 300; // refresh every 5 minutes
 
@@ -59,6 +61,15 @@ export default async function WaiataPage({ params }: PageProps) {
         .eq("id", release.iwi_consent_id)
         .maybeSingle()
     : { data: null };
+
+  // Local Contexts labels for this release (active only, public-readable)
+  const { data: labelLinks } = await supabase
+    .from("lc_label_links")
+    .select(
+      "id, release_id, research_document_id, label_id, applied_by, applied_at, evidence_url, scope, status, label:lc_labels(id, slug, family, label, description, canonical_url, requires_attribution, is_non_commercial)",
+    )
+    .eq("release_id", release.id)
+    .eq("status", "active");
 
   const meta = (release.metadata ?? {}) as {
     slug?: string;
@@ -173,6 +184,57 @@ export default async function WaiataPage({ params }: PageProps) {
                 </div>
               </div>
             )}
+
+            <div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                Local Contexts labels
+              </div>
+              <CardDescription className="mt-1 text-xs">
+                Machine-readable provenance from{" "}
+                <a
+                  href="https://localcontexts.org/labels"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-bronze-300 hover:text-bronze-200 underline"
+                >
+                  localcontexts.org
+                </a>
+                .
+              </CardDescription>
+              <div className="mt-2">
+                <LocalContextsLabels
+                  labels={(labelLinks ?? []).map((l) => ({
+                    id: l.id,
+                    release_id: l.release_id,
+                    research_document_id: l.research_document_id,
+                    label_id: l.label_id,
+                    applied_by: l.applied_by,
+                    applied_at: l.applied_at,
+                    evidence_url: l.evidence_url,
+                    scope: l.scope,
+                    status: l.status as "active",
+                    label: Array.isArray(l.label)
+                      ? l.label[0] ?? null
+                      : (l.label as unknown as {
+                          id: string;
+                          slug: string;
+                          family: "tk" | "bc" | "notice";
+                          label: string;
+                          description: string;
+                          canonical_url: string | null;
+                          requires_attribution: boolean;
+                          is_non_commercial: boolean;
+                        } | null) ?? undefined,
+                  }))}
+                />
+                <details className="mt-3 text-xs">
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                    What are these labels?
+                  </summary>
+                  <LocalContextsExplainer className="mt-2" />
+                </details>
+              </div>
+            </div>
 
             <div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground">
