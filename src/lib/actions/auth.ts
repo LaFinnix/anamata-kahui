@@ -11,6 +11,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/clients";
+import { safeRedirect } from "@/lib/auth/safe-redirect";
 
 export interface AuthFormState {
   error?: string;
@@ -37,7 +38,7 @@ export async function loginAction(
   }
 
   revalidatePath("/", "layout");
-  redirect(redirectTo || "/admin");
+  redirect(safeRedirect(redirectTo));
 }
 
 export async function registerAction(

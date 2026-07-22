@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/clients";
+import { safeRedirect } from "@/lib/auth/safe-redirect";
 
 /**
  * Supabase auth callback — handles email confirmation, magic links, and
@@ -9,7 +10,7 @@ import { createServerSupabase } from "@/lib/supabase/clients";
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") ?? "/admin";
+  const next = safeRedirect(url.searchParams.get("next"));
 
   if (code) {
     const supabase = await createServerSupabase();
