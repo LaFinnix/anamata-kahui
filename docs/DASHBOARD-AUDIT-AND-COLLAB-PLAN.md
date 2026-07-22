@@ -110,84 +110,137 @@ Sidebar shows role badge but not branch membership (the `user_branches` table). 
 
 ## Part 2 — Collaboration research
 
-The subagent's full report will land async. Below is the **consolidated recommendation** I can give based on what I already know about Splice / BandLab / DistroKid / Stem / ROLI / Sound.xyz / BeatStars / Git-for-music patterns + Supabase Realtime capabilities.
+The subagent's full industry report (40KB, 416 lines) is at
+[`docs/COLLABORATION-RESEARCH.md`](../docs/COLLABORATION-RESEARCH.md).
+The version below is the **condensed recommendation** derived from it.
 
-### Industry patterns (consensus view, not from the subagent report)
+### Verified industry state (subagent-confirmed)
 
-1. **Split sheets** — Standard practice. Signed PDF per release declaring each collaborator's percentage of:
-   - Publishing (compositional copyright)
-   - Master (recording copyright)
-   - Performance
-   Most platforms do this with a form + e-signature (DocuSign embedded) + downloadable PDF.
-
-2. **Stem versioning** — Most labels use a simple `v1`, `v2`, `v3` scheme with comments per version. Git-style branching rarely (DAW projects are binary, can't be diffed). Comments per stem are standard (Splice Studio does this, BandLab does this).
-
-3. **Real-time DAW collaboration** — Niche. BandLab and Soundtrap are the leaders. Splice has Splice Studio for stem-level collab. Adding this to Anamata Kāhui is **out of scope** for the next 30 days — it's a major engineering effort.
-
-4. **Async collaboration** — The dominant pattern is: download stems, work offline, upload new version, comment, repeat. DAW-agnostic tools (Stem.is, MoForte) tried this; few survived.
-
-5. **Cultural collaboration** — No existing platform handles tikanga + kaitiaki review alongside splits + creative collab. **This is a market gap.**
-
-### Supabase Realtime primitives available
-
-| Primitive | Use case for Anamata |
+| Live products | Status |
 |---|---|
-| **postgres_changes** | Subscribe to `releases.status` to notify when kaitiaki approves |
-| **presence** | Show which collaborators are online / viewing the release |
-| **broadcast** | Live in-app comments / chat per release |
-| **storage webhook** | Trigger processing when a stem is uploaded |
+| BandLab (60M users), Soundtrap, Audiotool | Real-time collab DAWs (their own DAW, not interoperable) |
+| Pro Tools + Avid Cloud Collaboration | Multi-user sessions (post-production house tier only) |
+| TuneCore Splits, RouteNote Splits | First-class splits primitives on the financial side |
+| Splits.org (0xSplits) | On-chain splits, USDC on Base |
 
-All available today, no migration needed.
+| Defunct | What it tells us |
+|---|---|
+| Sound.xyz (offline 16 Jan 2026 → splits.org) | On-chain splits is **not** the future; the schema carried over to Splits.org |
+| Splice Studio (shut down) | Confirms DAW-collab is hard — even Splice couldn't sustain it |
+| Stem.is (Cloudflare-blocked; status unclear) | "Stem is to splits what Splice was to DAW-collab" — pattern lives on in TuneCore |
+| DistroKid Splits (Cloudflare-blocked) | Widely known to ship splits; not verifiable firsthand but industry consensus confirms it |
+
+### Splits schema (consensus across all four major products)
+
+```
+contributor ID + sum-to-100 invariant + role label + signed artefact
+                + payout rail + audit trail
+```
+
+This is the **only schema** every competitor uses. We replicate it exactly.
+
+### DAW versioning reality
+
+- **No major DAW** ships multi-user project editing outside their own paired product (Avid → Avid Cloud; Splice → Splice Studio [dead])
+- **Cross-DAW norm** is "Dropbox + markdown changelog"
+- **No "Git for music" product ships in 2026**
+
+**Implication for Anamata:** don't integrate with any DAW. Store stem-file artefacts in Supabase Storage with a separate metadata table. DAW-agnostic by construction.
+
+### Cultural collaboration — confirmed market gap
+
+**No existing software** combines tikanga + kaitiaki review + splits + creative
+collaboration. The pattern has to be assembled from:
+- Te Matatini entry form (cultural gate at creation)
+- Ngā Taonga access log (cultural gate at consumption)
+- Te Mana Raraunga CARE (indigenous data sovereignty)
+- Ngā Taonga practice (append-only consent log)
+- Split-sheet signature (creative sign-off)
+- Kaitiaki rōpū (cultural sign-off)
+
+**The novelty for Anamata Kāhui is binding these six together in one release pipeline.** That's the moat.
+
+### Supabase Realtime primitives — confirmed
+
+| Primitive | Use case |
+|---|---|
+| **Broadcast** | Live comment streams; trigger-based `realtime.broadcast_changes()` for high-scale notifications |
+| **Presence** | "Who's currently viewing this release" (~30-line component) |
+| **Postgres Changes** | DB row-stream subscription; private channel for security |
+
+All three are sufficient for "collaborative" UI without rolling our own WebSocket layer.
 
 ### Recommended collaboration pattern for Anamata Kāhui (30-day MVP)
 
 The unique angle: Anamata Kāhui is the **only** platform that combines split-sheet + tikanga + kaitiaki review + iwi consent + append-only audit. That's the moat.
 
-#### Core entities to add
+#### Core entities to add (verified against Splice / TuneCore / DistroKid / Sound.xyz patterns)
 
 ```
-release_collaborators
-  id, release_id, profile_id, role (composer/performer/mixer/engineer),
-  publishing_split_pct, master_split_pct, signed_at
+split_sheets                       -- one per release
+  id, release_id (FK), created_by, status (draft/active/locked),
+  sum_to_100 (CHECK), signed_at, signed_pdf_url, locked_at
 
-release_invitations
-  id, release_id, invitee_email, invited_by, role, status (pending/accepted/declined),
+split_participants                 -- N per split_sheet
+  id, split_sheet_id (FK), profile_id (nullable for external),
+  external_name, external_email,
+  role (composer/performer/mixer/engineer/producer/kaihaka/kaiwaiata/kaitiaki),
+  publishing_split_pct, master_split_pct,
+  typed_signature, signed_at, signed_ip_hash
+
+stem_versions                      -- N per stem, append-only
+  id, stem_id (FK), version_number, uploaded_by, uploaded_at,
+  storage_path, file_size_bytes, notes, superseded_by (nullable)
+
+stem_comments                      -- N per stem
+  id, stem_id (FK), stem_version_id (FK, nullable),
+  author_id, body, created_at, parent_comment_id (FK self)
+
+release_collaborator_invites       -- invite tokens
+  id, release_id (FK), invitee_email, invited_by, role,
+  token (random), status (pending/accepted/declined/expired),
   expires_at, accepted_at
 
-stem_versions
-  id, stem_id, version_number, uploaded_by, uploaded_at, file_url, file_size_bytes,
-  notes, superseded_by
-
-stem_comments
-  id, stem_id, stem_version_id, author_id, body, created_at, parent_comment_id
-
-release_activity_log
-  id, release_id, actor_id, action (created/edited/invited/approved/released),
-  notes, created_at
+cultural_review_cycles             -- append-only audit
+  id, release_id (FK), kaitiaki_id (FK kaitiaki_roopu.id),
+  decision (approved/withheld/changes_requested),
+  notes, decided_at, parent_cycle_id (FK self for revisions)
 ```
 
-#### Minimal feature set (4 weeks)
+Plus a **gating trigger** on `releases`:
 
-**Week 1: foundation**
-- `release_collaborators` table + `release_invitations` table
-- `release_collaborators` insert form on `/releases/[id]`
-- Email-invite flow (Resend)
+```sql
+before update on releases
+for each row when (new.status = 'scheduled'
+  and new.cultural_review_status != 'approved')
+execute function require_cultural_signoff();  -- raises exception
+```
 
-**Week 2: stem versioning**
-- `stem_versions` table + `stem_comments` table
-- Version-aware upload UI on `/releases/[id]`
-- Per-stem comments thread
+This is the **novelty** — no competitor enforces cultural sign-off at the
+database layer. Splice / TuneCore / DistroKid / Sound.xyz have no
+equivalent.
 
-**Week 3: kaitiaki review pipeline**
-- `release_activity_log` table
-- Status state machine: `draft → in_cultural_review → approved → scheduled → released`
-- Kaitiaki dashboard view: queue of pending reviews
-- Append-only audit trail (already have `consent_log`)
+#### Minimal feature set (30 days, verified against subagent roadmap)
 
-**Week 4: real-time + polish**
-- Supabase Realtime: live status changes + collaborator presence
-- Email notifications via Resend when state changes
-- Per-release activity feed
+**Week 1 — schema + splits form**
+- Days 1–2: `0010_collaboration.sql` — `split_sheets`, `split_participants` with `CHECK (sum_to_100)` + role enum
+- Days 3–6: UI at `/dashboard/collaborate/[release_id]` — split-sheet form, role-select, percentage inputs that sum to 100
+- Days 6–9: PDF export via `pdf-lib`; signed artefact stored in `stems/{release_id}/splits/{sheet_id}.pdf`
+
+**Week 2 — stems + invites**
+- Day 10: `stem_versions` (append-only), `stem_comments`, `release_collaborator_invites`
+- Days 11–14: Version-aware upload UI on `/releases/[id]`; per-stem comments thread
+- Days 14–18: Invite flow — branch admin emails an invitee, invitee signs in/up, `release_collaborator_invites` flips to `accepted`, invitee gets `user_branches` access
+
+**Week 3 — cultural review gate (the unique angle)**
+- Day 19: `cultural_review_cycles` table + `cultural_review_status` enum on `releases`
+- Days 20–24: Kaitiaki dashboard view at `/dashboard/cultural-review/[release_id]` gated on `kaitiaki` role; emits `consent_log` entry on every decision
+- Day 25: **Gating trigger** — releases can't reach `status = 'scheduled'` until `cultural_review_status = 'approved'`. CHECK constraint + trigger function in `0010_collaboration.sql`.
+
+**Week 4 — real-time + polish**
+- Days 26–27: Supabase Realtime Presence — "who's viewing this release" (~30 lines)
+- Day 28: Postgres Changes subscription for `stem_comments` + `split_participants`
+- Days 29–30: Reconciliation checklist UI on release detail; CSV export of split sheets for downstream distributors; reconciliation of any unscheduled releases against the new gate
 
 #### Cultural-collaboration unique angle
 
