@@ -75,6 +75,12 @@ def evaluate(rows: list[dict], today: dt.date) -> dict:
     missed: list[dict] = []  # closed within last 7 days, no submission indicator
 
     for row in rows:
+        # Skip discontinued programmes outright.
+        if "DISCONTINUED" in (row.get("status") or "").upper() or "DISCONTINUED" in (row.get("notes") or "").upper():
+            continue
+        if "discontinued" in (row.get("notes") or "").lower():
+            continue
+
         close_date = parse_iso_date(row["close"])
         open_date = parse_iso_date(row["open"])
         if close_date is None:
