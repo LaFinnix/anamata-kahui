@@ -24,27 +24,21 @@ do $$
 begin
   if not exists (select 1 from pg_type where typname = 'lc_label_type') then
     create type public.lc_label_type as enum (
-      'tk_attribution',
-      'tk_non_commercial',
-      'tk_clan',
-      'tk_family',
-      'tk_outreach',
-      'tk_verified',
-      'tk_creative',
-      'tk_secret_sacred',
-      'tk_sensitive_men',
-      'tk_sensitive_women',
-      'tk_sensitive_children',
-      'bc_provenance',
-      'bc_consent_verified',
-      'bc_open_to_collaboration',
-      'bc_consent_optional',
-      'bc_creative',
-      'notice_open_with_care',
-      'notice_open_with_attribution',
-      'notice_research_only',
-      'notice_community_voice',
-      'notice_kaitiaki_consultation',
+      -- TK Labels (20 — verified from Hub TK index 2026-07-22)
+      'attribution', 'clan', 'family', 'outreach', 'tk_multiple_community',
+      'non_verified', 'verified', 'non_commercial', 'commercial',
+      'culturally_sensitive', 'community_voice', 'community_use_only',
+      'seasonal', 'women_general', 'men_general', 'women_restricted',
+      'men_restricted', 'secret_sacred', 'open_to_collaboration', 'creative',
+      -- BC Labels (10)
+      'bc_provenance', 'bc_commercialization', 'bc_non_commercial',
+      'bc_collaboration', 'bc_consent_verified', 'bc_consent_non_verified',
+      'bc_multiple_community', 'bc_clan', 'bc_outreach', 'bc_research',
+      -- Notices (12)
+      'tk_notice', 'bc_notice', 'open_to_collaborate', 'attribution_incomplete',
+      'belonging', 'caring', 'leave_undisturbed', 'gender_aware',
+      'withholding', 'safety', 'authorization', 'viewing',
+      -- Internal/legacy
       'custom'
     );
   end if;

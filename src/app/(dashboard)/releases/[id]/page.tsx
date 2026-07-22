@@ -37,14 +37,30 @@ export default async function ReleaseDetailPage({ params }: PageProps) {
     .eq("release_id", id)
     .order("created_at", { ascending: false });
 
-  // Local Contexts labels for this release
-  const { data: labelLinks } = await supabase
-    .from("lc_label_links")
-    .select(
-      "id, release_id, research_document_id, label_id, applied_by, applied_at, evidence_url, scope, status, label:lc_labels(id, slug, family, label, description, canonical_url, requires_attribution, is_non_commercial)",
-    )
-    .eq("release_id", id)
-    .eq("status", "active");
+  // Local Contexts Hub project + cached label payload
+  const { data: cacheRow } = await supabase
+    .from("lc_labels_cache")
+    .select("payload, fetched_at")
+    .maybeSingle();  // single project per release; fetched via FK below
+
+  // Get the actual hub_project_id + status from lc_project_status
+  const { data: projectStatus } = await supabase
+    .from("lc_project_status")
+    .select("hub_project_id, last_synced_at, last_sync_status")
+    .eq("asset_kind", "release")
+    .eq("asset_id", release.id)
+    .maybeSingle();
+
+  // Read cached payload from the right project_id
+  let cachedPayload: unknown = null;
+  if (projectStatus?.hub_project_id) {
+    const { data: cache } = await supabase
+      .from("lc_labels_cache")
+      .select("payload, fetched_at")
+      .eq("hub_project_id", projectStatus.hub_project_id)
+      .maybeSingle();
+    cachedPayload = cache;
+  }
 
   return (
     <div className="space-y-8">
@@ -127,21 +143,13 @@ export default async function ReleaseDetailPage({ params }: PageProps) {
               <LabelManager
                 releaseId={release.id}
                 catalogue={getEmbeddedCatalogue()}
-                currentLinks={(labelLinks ?? []).map((l) => ({
-                  id: l.id,
-                  label: Array.isArray(l.label)
-                    ? l.label[0] ?? null
-                    : (l.label as unknown as {
-                        id: string;
-                        slug: string;
-                        family: "tk" | "bc" | "notice";
-                        label: string;
-                        description: string;
-                        canonical_url: string | null;
-                        requires_attribution: boolean;
-                        is_non_commercial: boolean;
-                      } | null),
-                }))}
+                currentHubProjectId={projectStatus?.hub_project_id ?? null}
+                cachedLabelCount={(() => {
+                  const p = cachedPayload as { payload?: { tk_labels?: unknown[]; bc_labels?: unknown[]; notice?: unknown[] } } | null;
+                  if (!p?.payload) return 0;
+                  return (p.payload.tk_labels?.length ?? 0) + (p.payload.bc_labels?.length ?? 0) + (p.payload.notice?.length ?? 0);
+                })()}
+                lastSyncedAt={projectStatus?.last_synced_at ?? null}
               />
             </CardContent>
           </Card>
