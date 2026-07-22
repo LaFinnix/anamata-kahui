@@ -2,16 +2,25 @@ import { Code2, KeyRound, Webhook, Terminal } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
-export const metadata = { title: "Dev console" };
+export const metadata = {
+  title: "API keys · Technology & Dev",
+  description: "Internal tooling, API keys, webhook configuration, and background jobs.",
+};
 
 export default function DevConsolePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-display font-semibold tracking-tight">Dev console</h1>
-        <p className="mt-1 text-muted-foreground">
-          Internal tooling, API keys, and webhook configuration.
+        <div className="mb-2 flex items-center gap-2">
+          <Badge variant="outline">Technology & Dev</Badge>
+          <Badge variant="secondary" className="text-xs">Sub-category</Badge>
+        </div>
+        <h1 className="text-3xl font-display font-semibold tracking-tight">API keys</h1>
+        <p className="mt-1 max-w-2xl text-muted-foreground">
+          Issue scoped tokens for integrations. Webhooks and background-job
+          observability live under this branch.
         </p>
       </div>
 

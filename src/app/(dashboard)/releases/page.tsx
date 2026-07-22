@@ -1,4 +1,4 @@
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, GitBranch, Library } from "lucide-react";
 import Link from "next/link";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export const metadata = { title: "Release pipeline" };
+export const metadata = {
+  title: "Release pipeline · Music (Anamata Records)",
+  description: "Releases in draft, scheduled, and released states.",
+};
 
 export default async function ReleasesPage() {
   const supabase = await createServerSupabase();
@@ -26,18 +29,29 @@ export default async function ReleasesPage() {
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div>
+          <div className="mb-2 flex items-center gap-2">
+            <Badge variant="outline">Music (Anamata Records)</Badge>
+            <Badge variant="secondary" className="text-xs">Sub-category</Badge>
+          </div>
           <h1 className="text-3xl font-display font-semibold tracking-tight">
             Release pipeline
           </h1>
-          <p className="mt-1 text-muted-foreground">
-            Move a release through draft → scheduled → released. Upload stems
-            and artwork once a release exists.
+          <p className="mt-1 max-w-2xl text-muted-foreground">
+            Tracks progress through draft → scheduled → released. Each
+            release passes through the cultural-review pipeline (kaitiaki
+            sign-off required before scheduling) before going live.
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4" />
-          New release
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" disabled>
+            <Upload className="h-4 w-4" />
+            Upload stems
+          </Button>
+          <Button disabled>
+            <Plus className="h-4 w-4" />
+            New release
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

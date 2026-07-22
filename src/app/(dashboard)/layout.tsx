@@ -1,6 +1,26 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, Music, BarChart3, Upload, BookOpen, Code2, Shield } from "lucide-react";
+import {
+  LayoutDashboard,
+  Music,
+  BarChart3,
+  Upload,
+  BookOpen,
+  Code2,
+  Shield,
+  Users,
+  Image as ImageIcon,
+  Mic2,
+  HardDrive,
+  Palette,
+  GitBranch,
+  FileText,
+  KeyRound,
+  Webhook,
+  Terminal,
+  Library,
+  Compass,
+} from "lucide-react";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
 import { Badge } from "@/components/ui/badge";
@@ -12,16 +32,91 @@ interface NavItem {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  requires?: UserRole[];
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { href: "/admin",      label: "Overview",  icon: LayoutDashboard },
-  { href: "/records",    label: "Records",   icon: Music,        requires: ["super_admin", "branch_admin", "artist"] },
-  { href: "/releases",   label: "Releases",  icon: Upload,       requires: ["super_admin", "branch_admin", "artist"] },
-  { href: "/analytics",  label: "Analytics", icon: BarChart3,    requires: ["super_admin", "branch_admin", "artist"] },
-  { href: "/research",   label: "Research",  icon: BookOpen,     requires: ["super_admin", "branch_admin", "researcher"] },
-  { href: "/dev",        label: "Dev",       icon: Code2,        requires: ["super_admin", "branch_admin", "client"] },
+interface NavGroup {
+  /** Display label (e.g. "Music (Anamata Records)") */
+  label: string;
+  /** Branch slug — when set, the group is gated on the user having a `user_branches` row for this branch */
+  branchSlug?: "records" | "research" | "arts" | "dev";
+  /** Roles that see this group regardless of branch membership */
+  roles?: UserRole[];
+  icon: React.ComponentType<{ className?: string }>;
+  items: NavItem[];
+}
+
+/**
+ * Dashboard navigation groups.
+ *
+ * Hierarchical structure:
+ *   - Cross-branch items (Overview) → super_admin only
+ *   - Per-branch groups → gated on user_branches membership
+ *   - Admin group → super_admin + branch_admin
+ *
+ * Sub-categories reflect the user's description: each branch has multiple
+ * sub-pages (Music > Releases, Demos, Roster, etc.).
+ */
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Overview",
+    icon: LayoutDashboard,
+    roles: ["super_admin"],
+    items: [
+      { href: "/admin", label: "Cross-branch overview", icon: Compass },
+    ],
+  },
+  {
+    label: "Music (Anamata Records)",
+    branchSlug: "records",
+    icon: Music,
+    items: [
+      { href: "/records", label: "Roster", icon: Users },
+      { href: "/releases", label: "Releases", icon: Upload },
+      { href: "/demos", label: "Demos", icon: Mic2 },
+      { href: "/stem-vault", label: "Stem Vault", icon: HardDrive },
+      { href: "/analytics", label: "Analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Research & Language",
+    branchSlug: "research",
+    icon: BookOpen,
+    items: [
+      { href: "/research", label: "Papers", icon: FileText },
+      { href: "/research/field-projects", label: "Field projects", icon: GitBranch },
+      { href: "/library", label: "Library", icon: Library },
+    ],
+  },
+  {
+    label: "Creative Arts",
+    branchSlug: "arts",
+    icon: Palette,
+    items: [
+      { href: "/arts", label: "Galleries", icon: ImageIcon },
+      { href: "/arts/portfolios", label: "Portfolios", icon: Palette },
+      { href: "/arts/commissions", label: "Commissions", icon: Mic2 },
+    ],
+  },
+  {
+    label: "Technology & Dev",
+    branchSlug: "dev",
+    icon: Code2,
+    items: [
+      { href: "/dev", label: "API keys", icon: KeyRound },
+      { href: "/dev/webhooks", label: "Webhooks", icon: Webhook },
+      { href: "/dev/jobs", label: "Background jobs", icon: Terminal },
+    ],
+  },
+  {
+    label: "Admin",
+    icon: Shield,
+    roles: ["super_admin", "branch_admin"],
+    items: [
+      { href: "/admin", label: "Overview", icon: LayoutDashboard },
+      { href: "/admin/iwi-gate", label: "Iwi gates", icon: GitBranch },
+      { href: "/admin/members", label: "Members", icon: Users },
+    ],
+  },
 ];
 
 /**
@@ -40,8 +135,7 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  // Fetch the profile so we can scope the nav to the user's role. RLS allows
-  // any authenticated user to read profiles.
+  // Fetch the profile so we can scope the nav to the user's role + branch.
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, full_name, email, role, avatar_url")
@@ -49,9 +143,31 @@ export default async function DashboardLayout({
     .single();
 
   const role = (profile?.role ?? "client") as UserRole;
-  const visibleItems = NAV_ITEMS.filter(
-    (item) => !item.requires || item.requires.includes(role),
-  );
+  const isSuperAdmin = role === "super_admin";
+
+  // Fetch branch membership (only if not super_admin — super_admin sees everything).
+  const branchSlugs = new Set<string>();
+  if (!isSuperAdmin) {
+    const { data: memberships } = await supabase
+      .from("user_branches")
+      .select("branch_id, branches:branch_id(slug)")
+      .eq("user_id", user.id);
+    for (const m of memberships ?? []) {
+      const slug = (m.branches as unknown as { slug?: string } | null)?.slug;
+      if (slug) branchSlugs.add(slug);
+    }
+  }
+
+  // Filter groups: role + branch membership
+  const visibleGroups = NAV_GROUPS.filter((group) => {
+    // Role-only groups
+    if (group.roles && !group.roles.includes(role)) return false;
+    // Branch-gated groups: skip unless super_admin or member of that branch
+    if (group.branchSlug && !isSuperAdmin && !branchSlugs.has(group.branchSlug)) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className="flex min-h-dvh bg-background text-foreground">
@@ -65,19 +181,29 @@ export default async function DashboardLayout({
           Anamata Kāhui
         </div>
 
-        <nav className="flex-1 space-y-1 p-4">
-          {visibleItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
-                "text-foreground/80 hover:bg-muted hover:text-foreground",
-              )}
-            >
-              <item.icon className="h-4 w-4 text-bronze-300" />
-              {item.label}
-            </Link>
+        <nav className="flex-1 space-y-4 overflow-y-auto p-4">
+          {visibleGroups.map((group) => (
+            <div key={group.label}>
+              <div className="mb-1 flex items-center gap-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <group.icon className="h-3 w-3" />
+                {group.label}
+              </div>
+              <div className="space-y-1">
+                {group.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
+                      "text-foreground/80 hover:bg-muted hover:text-foreground",
+                    )}
+                  >
+                    <item.icon className="h-4 w-4 text-bronze-300" />
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
@@ -97,13 +223,23 @@ export default async function DashboardLayout({
             <Badge variant="outline" className="capitalize">
               {role.replace("_", " ")}
             </Badge>
-            {role === "super_admin" && (
+            {isSuperAdmin && (
               <Badge variant="success" className="gap-1">
                 <Shield className="h-3 w-3" />
                 Full access
               </Badge>
             )}
           </div>
+          {/* Branch membership chips */}
+          {branchSlugs.size > 0 && (
+            <div className="mb-3 flex flex-wrap gap-1">
+              {Array.from(branchSlugs).map((slug) => (
+                <Badge key={slug} variant="secondary" className="capitalize text-xs">
+                  {slug}
+                </Badge>
+              ))}
+            </div>
+          )}
           <LogoutButton className="w-full justify-start" />
         </div>
       </aside>

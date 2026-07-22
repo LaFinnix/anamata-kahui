@@ -3,7 +3,10 @@ import { BarChart3, TrendingUp, Users, DollarSign } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export const metadata = { title: "Analytics" };
+export const metadata = {
+  title: "Analytics · Music (Anamata Records)",
+  description: "Stream counts, royalty estimates, and audience geography across the Anamata Records branch.",
+};
 
 // NOTE: real numbers come from streaming-platform APIs (Spotify, Apple, etc.)
 // which we wire up after the scaffold. For now these cards render zeroed
@@ -20,8 +23,12 @@ export default function AnalyticsPage() {
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div>
+          <div className="mb-2 flex items-center gap-2">
+            <Badge variant="outline">Music (Anamata Records)</Badge>
+            <Badge variant="secondary" className="text-xs">Sub-category</Badge>
+          </div>
           <h1 className="text-3xl font-display font-semibold tracking-tight">Analytics</h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="mt-1 max-w-2xl text-muted-foreground">
             Stream counts, royalty estimates, and audience geography across the
             Records branch.
           </p>

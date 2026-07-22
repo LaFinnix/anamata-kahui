@@ -4,19 +4,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-export const metadata = { title: "Arts dashboard" };
+export const metadata = {
+  title: "Galleries · Creative Arts",
+  description: "Visual arts galleries, portfolios, and commissions.",
+};
 
 export default function ArtsDashboardPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-semibold tracking-tight">Arts</h1>
-          <p className="mt-1 text-muted-foreground">
+          <div className="mb-2 flex items-center gap-2">
+            <Badge variant="outline">Creative Arts</Badge>
+            <Badge variant="secondary" className="text-xs">Sub-category</Badge>
+          </div>
+          <h1 className="text-3xl font-display font-semibold tracking-tight">Galleries</h1>
+          <p className="mt-1 max-w-2xl text-muted-foreground">
             Galleries, portfolios, and commission tracking for the Creative Arts branch.
           </p>
         </div>
-        <Button>
+        <Button disabled>
           <Plus className="h-4 w-4" />
           New commission
         </Button>

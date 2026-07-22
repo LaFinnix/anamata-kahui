@@ -1,24 +1,32 @@
-import { Plus, FileText, FolderArchive } from "lucide-react";
+import { Plus, FileText, FolderArchive, GitBranch } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export const metadata = { title: "Research portal" };
+export const metadata = {
+  title: "Papers · Research & Language",
+  description: "Research portal — papers, field projects, and reference material.",
+};
 
 export default function ResearchDashboardPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div>
+          <div className="mb-2 flex items-center gap-2">
+            <Badge variant="outline">Research & Language</Badge>
+            <Badge variant="secondary" className="text-xs">Sub-category</Badge>
+          </div>
           <h1 className="text-3xl font-display font-semibold tracking-tight">
-            Research portal
+            Papers
           </h1>
-          <p className="mt-1 text-muted-foreground">
+          <p className="mt-1 max-w-2xl text-muted-foreground">
             Knowledge vault, document archives, and live field projects.
           </p>
         </div>
-        <Button>
+        <Button disabled>
           <Plus className="h-4 w-4" />
           Submit document
         </Button>
