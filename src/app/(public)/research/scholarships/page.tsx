@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, BookOpen, ExternalLink, GraduationCap, Globe } from "lucide-react";
@@ -47,6 +48,24 @@ export default function ScholarshipsPage() {
           groups) — is at{" "}
           <code>docs/PMSA-RESEARCH.md</code> in this repository.
         </p>
+      </section>
+
+      <section className="mt-16">
+        <h2 className="font-display text-2xl">Scholarship portfolio</h2>
+        <p className="mt-3 max-w-3xl text-muted-foreground">
+          Every programme Anamata researchers engage with — active,
+          paused, and archived — plus named historical precedents and our
+          own engagement record. Funders asking "what scholarships have
+          you mobilised?" get a live answer.
+        </p>
+        <div className="mt-6">
+          <Link
+            href="/research/scholarships/portfolio"
+            className="inline-flex items-center gap-2 rounded-md border border-bronze-500/40 bg-bronze-400/10 px-4 py-3 text-sm font-medium text-bronze-300 hover:bg-bronze-400/20 hover:text-bronze-200"
+          >
+            Open the full scholarship portfolio
+          </Link>
+        </div>
       </section>
 
       <section className="mt-16">

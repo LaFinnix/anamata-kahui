@@ -161,6 +161,75 @@ export interface ResearchFieldProject {
   updated_at: string;
 }
 
+// Scholarships — migration 0006
+export type ScholarshipStatus = "active" | "paused" | "discontinued" | "archived";
+export type ScholarshipEngagementStatus =
+  | "planned"
+  | "submitted"
+  | "awarded"
+  | "in_progress"
+  | "completed"
+  | "declined";
+
+export interface ScholarshipProgramme {
+  id: string;
+  slug: string;
+  name: string;
+  host_country: string | null;
+  destination: string | null;
+  status: ScholarshipStatus;
+  amount_text: string | null;
+  amount_typical_nzd: number | null;
+  duration_text: string | null;
+  duration_weeks_min: number | null;
+  duration_weeks_max: number | null;
+  eligibility_summary: string | null;
+  selection_criteria: string | null;
+  vision_matauranga: boolean;
+  maori_pasifika_priority: boolean;
+  url: string | null;
+  notes: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ScholarshipEngagement {
+  id: string;
+  programme_id: string;
+  recipient_name: string;
+  recipient_profile_id: string | null;
+  iwi_affiliation: string[] | null;
+  year: number;
+  status: ScholarshipEngagementStatus;
+  start_date: string | null;
+  end_date: string | null;
+  host_institution: string | null;
+  project_title: string | null;
+  project_summary: string | null;
+  linked_research_doc_id: string | null;
+  linked_release_id: string | null;
+  amount_awarded_nzd: number | null;
+  notes: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ScholarshipPrecedentRecipient {
+  id: string;
+  programme_id: string;
+  recipient_name: string;
+  year: number | null;
+  destination_country: string | null;
+  host_institution: string | null;
+  project_title: string | null;
+  description: string | null;
+  is_indigenous_led: boolean;
+  source_url: string | null;
+  created_at: string;
+}
+
 export interface Branch {
   id: string;
   slug: BranchSlug;
