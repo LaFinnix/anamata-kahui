@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LabelManager } from "@/components/local-contexts/label-manager";
+import { MetadataBundleDownload } from "@/components/local-contexts/metadata-bundle-download";
 import { getEmbeddedCatalogue } from "@/lib/local-contexts/client";
 
 export const metadata = { title: "Release" };
@@ -151,6 +152,19 @@ export default async function ReleaseDetailPage({ params }: PageProps) {
                 })()}
                 lastSyncedAt={projectStatus?.last_synced_at ?? null}
               />
+              {projectStatus?.hub_project_id && (
+                <div className="mt-3 border-t border-border pt-3">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                    File metadata
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Download an XMP sidecar + PDF /Info dict + ID3 chunk
+                    you can apply to your audio/PDF/image binaries with
+                    ffmpeg, qpdf, or exiftool.
+                  </p>
+                  <MetadataBundleDownload releaseId={release.id} />
+                </div>
+              )}
             </CardContent>
           </Card>
 

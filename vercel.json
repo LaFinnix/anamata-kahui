@@ -6,6 +6,12 @@
   "framework": "nextjs",
   "regions": ["syd1"],
   "trailingSlash": false,
+  "crons": [
+    {
+      "path": "/api/cron/local-contexts-refresh",
+      "schedule": "0 *\\/6 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -20,7 +26,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.supabase.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.supabase.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob: https://localcontextshub.org; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://localcontextshub.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         }
       ]
     }
