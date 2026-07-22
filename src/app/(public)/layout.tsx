@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/kahui/site-header";
 import { SiteFooter } from "@/components/kahui/site-footer";
 import { SkipToContent } from "@/components/kahui/skip-to-content";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 
 /**
  * Public route group — the (public) segment does not appear in the URL.
@@ -16,6 +17,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
       <SiteFooter />
+      <CookieConsentBanner />
     </div>
   );
 }

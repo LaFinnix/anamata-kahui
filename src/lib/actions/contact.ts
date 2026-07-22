@@ -4,42 +4,44 @@
  * Contact form server action — wired to /(public)/contact.
  *
  * Persists to Supabase (table `contact_enquiries`, defined in
- * 0002_cultural_governance.sql) AND sends email via Resend when env
- * vars are present. When Resend isn't configured, the form still
- * persists — operators see the enquiry in the staff dashboard.
+ * 0002_cultural_governance.sql) AND sends email via Resend when
+ * RESEND_API_KEY is configured.
+ *
+ * The form requires an explicit consent checkbox (Privacy Act 2020).
+ *
+ * Honours App Router `useActionState` shape: (prevState, formData) → state.
  */
 
 import { createAdminClient } from "@/lib/supabase/clients";
-import { revalidatePath } from "next/cache";
 
 export interface ContactFormState {
   error?: string;
   success?: string;
 }
 
-interface ContactPayload {
-  name: string;
-  email: string;
-  message: string;
-}
-
 export async function contactAction(
   _prev: ContactFormState | null,
   formData: FormData,
 ): Promise<ContactFormState> {
-  const payload: ContactPayload = {
-    name: String(formData.get("name") ?? "").trim(),
-    email: String(formData.get("email") ?? "").trim(),
-    message: String(formData.get("message") ?? "").trim(),
-  };
+  // Parse + validate
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const message = String(formData.get("message") ?? "").trim();
+  const consent = String(formData.get("consent") ?? "");
 
-  if (!payload.name || !payload.email || !payload.message) {
+  if (!name || !email || !message) {
     return { error: "All fields are required." };
   }
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(payload.email)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { error: "Please enter a valid email address." };
   }
-  if (payload.message.length < 10) {
+  if (consent !== "yes") {
+    return {
+      error:
+        "Please confirm you consent to us storing your enquiry details per the privacy notice.",
+    };
+  }
+  if (message.length < 10) {
     return { error: "Message is too short — please give us a bit more context." };
   }
 
@@ -47,21 +49,24 @@ export async function contactAction(
   // but service-role gives us a single code path).
   try {
     const admin = createAdminClient();
-    const { error } = await admin.from("contact_enquiries").insert({
-      name: payload.name,
-      email: payload.email,
-      message: payload.message,
-      source: "website_contact_form",
+    const { error: insertError } = await admin.from("contact_enquiries").insert({
+      name,
+      email,
+      message,
+      source: "contact_form",
+      consented_at: new Date().toISOString(),
     });
-    if (error) {
-      console.error("contact_enquiries insert failed:", error.message);
+
+    if (insertError) {
+      console.error("contact_enquiries insert failed:", insertError.message);
+      // Continue to email anyway — DB may be temporarily unavailable.
     }
   } catch (e) {
     console.warn("contact_enquiries skipped (no service-role key):", e);
   }
 
-  // Send email via Resend if configured. Optional — the enquiry is
-  // already in the DB.
+  // Optional email notification via Resend. If env vars aren't set, skip
+  // silently — the DB row is enough.
   const resendKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.CONTACT_FROM_EMAIL;
   const toEmail = process.env.CONTACT_TO_EMAIL;
@@ -76,14 +81,10 @@ export async function contactAction(
         },
         body: JSON.stringify({
           from: fromEmail,
-          to: toEmail,
-          reply_to: payload.email,
-          subject: `[Anamata Kāhui] New enquiry from ${payload.name}`,
-          text: `From: ${payload.name} <${payload.email}>\n\n${payload.message}`,
-          html: `
-            <p><strong>From:</strong> ${escapeHtml(payload.name)} &lt;${escapeHtml(payload.email)}&gt;</p>
-            <p>${escapeHtml(payload.message).replace(/\n/g, "<br>")}</p>
-          `,
+          to: [toEmail],
+          subject: `[Anamata Kāhui] Contact form: ${name}`,
+          text: `From: ${name} <${email}>\n\n${message}\n\n— Anamata Kāhui contact form`,
+          reply_to: email,
         }),
       });
       if (!res.ok) {
@@ -95,18 +96,8 @@ export async function contactAction(
     }
   }
 
-  revalidatePath("/contact");
   return {
     success:
-      "Tēnā koe — we've received your message. The Kāhui team will be in touch within a few working days.",
+      "Tēnā koe — your message has been received. We'll be in touch within 2 working days.",
   };
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }

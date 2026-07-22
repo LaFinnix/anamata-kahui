@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 import { contactAction } from "@/lib/actions/contact";
@@ -31,6 +32,28 @@ export function ContactForm() {
           minLength={10}
           className="flex w-full rounded-md border border-border bg-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
+      </div>
+
+      <div className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3 text-sm">
+        <input
+          id="consent"
+          name="consent"
+          type="checkbox"
+          value="yes"
+          required
+          className="mt-1 h-4 w-4 rounded border-border text-bronze-400 focus:ring-bronze-400"
+        />
+        <label htmlFor="consent" className="flex-1 cursor-pointer text-muted-foreground">
+          I consent to Anamata Kāhui storing my name, email, and message
+          so it can respond to my enquiry, per the{" "}
+          <Link
+            href="/legal/privacy-notice"
+            className="text-bronze-300 hover:text-bronze-200 underline"
+          >
+            privacy notice
+          </Link>
+          . Storage retention: 24 months.
+        </label>
       </div>
 
       {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
