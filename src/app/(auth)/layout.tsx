@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { SkipToContent } from "@/components/kahui/skip-to-content";
 
 /**
  * Auth route group — minimal chrome, no main site header/footer.
@@ -8,8 +9,9 @@ import Link from "next/link";
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col bg-background">
+      <SkipToContent />
       <div className="flex flex-1 items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
+        <div id="main-content" className="w-full max-w-md">
           <Link
             href="/"
             className="mb-8 flex items-center justify-center gap-2 font-display text-lg font-semibold"

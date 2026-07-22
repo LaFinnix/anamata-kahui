@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/kahui/site-header";
 import { SiteFooter } from "@/components/kahui/site-footer";
+import { SkipToContent } from "@/components/kahui/skip-to-content";
 
 /**
  * Public route group — the (public) segment does not appear in the URL.
@@ -9,8 +10,11 @@ import { SiteFooter } from "@/components/kahui/site-footer";
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
+      <SkipToContent />
       <SiteHeader />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">
+        {children}
+      </main>
       <SiteFooter />
     </div>
   );

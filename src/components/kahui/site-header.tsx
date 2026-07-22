@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BranchSwitcher } from "@/components/kahui/branch-switcher";
+import { LanguageSwitcher } from "@/components/kahui/language-switcher";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -35,6 +36,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <LanguageSwitcher />
           <Button asChild variant="ghost" size="sm">
             <Link href="/login">Sign in</Link>
           </Button>

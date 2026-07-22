@@ -6,7 +6,13 @@
  * If you change the schema, update the matching type here.
  */
 
-export type UserRole = "super_admin" | "branch_admin" | "artist" | "researcher" | "client";
+export type UserRole =
+  | "super_admin"
+  | "branch_admin"
+  | "kaitiaki"
+  | "artist"
+  | "researcher"
+  | "client";
 
 export type BranchSlug = "records" | "research" | "arts" | "dev";
 
@@ -21,8 +27,68 @@ export interface Profile {
   role: UserRole;
   avatar_url: string | null;
   bio: string | null;
+  // Cultural metadata (migration 0002)
+  iwi_affiliation: string[];
+  te_reo_proficiency: "none" | "basic" | "intermediate" | "advanced" | "first_language" | null;
+  preferred_language: string | null;
+  region: string | null;
+  opted_in_public_directory: boolean;
+  data_export_requested_at: string | null;
+  data_deletion_requested_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export type CulturalSensitivity =
+  | "open"
+  | "attributed"
+  | "kaitiaki_gated"
+  | "tapu"
+  | "restricted_iwi";
+
+export interface IwiGate {
+  id: string;
+  iwi_name: string;
+  hapu_name: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  scope: "public" | "iwi_only" | "hapu_only" | "restricted" | "tapu";
+  applies_to_kind: "release" | "research_doc" | "stem" | "artist" | "general";
+  applies_to_id: string | null;
+  granted_at: string;
+  expires_at: string | null;
+  revoked_at: string | null;
+  revoked_reason: string | null;
+  granted_by: string | null;
+  notes: string | null;
+}
+
+export interface ConsentLogEntry {
+  id: string;
+  iwi_gate_id: string | null;
+  actor_id: string | null;
+  action:
+    | "granted"
+    | "amended"
+    | "revoked"
+    | "expired"
+    | "requested_withdrawal"
+    | "reviewed";
+  notes: string | null;
+  at: string;
+}
+
+export interface KaitiakiRoopuMember {
+  id: string;
+  profile_id: string;
+  scope: "platform" | "branch" | "iwi" | "project";
+  branch_id: string | null;
+  iwi_name: string | null;
+  term_started_at: string;
+  term_ends_at: string | null;
+  voting_weight: number;
+  is_active: boolean;
+  notes: string | null;
 }
 
 export interface Branch {
@@ -52,6 +118,15 @@ export interface Release {
   cover_art_url: string | null;
   status: ReleaseStatus;
   metadata: Record<string, unknown>;
+  // Cultural metadata (migration 0002)
+  language_code: string | null;
+  iwi_consent_id: string | null;
+  cultural_sensitivity: CulturalSensitivity;
+  upc: string | null;
+  isrc: string | null;
+  parental_advisory: string | null;
+  territory_rights: Record<string, unknown>;
+  distributors: unknown[];
   created_at: string;
   updated_at: string;
 }
@@ -63,6 +138,11 @@ export interface Stem {
   file_name: string;
   mime_type: string | null;
   size_bytes: number | null;
+  // Cultural metadata (migration 0002)
+  instrument: string | null;
+  version: number;
+  license: string | null;
+  cultural_sensitivity: CulturalSensitivity;
   uploaded_by: string | null;
   created_at: string;
 }
