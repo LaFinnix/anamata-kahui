@@ -22,7 +22,7 @@ export default async function TransparencyPage() {
   const supabase = await createServerSupabase();
 
   // Parallel count queries — anon-readable views via RLS.
-  const [iwiGatesResult, governanceLogResult] = await Promise.all([
+  const [iwiGatesResult, governanceLogResult, fieldProjectsResult] = await Promise.all([
     supabase.from("iwi_gates").select("id, iwi_name, scope, applies_to_kind, granted_at"),
     supabase
       .from("data_governance_log")
@@ -30,6 +30,11 @@ export default async function TransparencyPage() {
       .eq("published", true)
       .order("effective_at", { ascending: false })
       .limit(10),
+    // Field projects: anon-readable summary
+    supabase
+      .from("research_field_projects")
+      .select("id, status")
+      .order("start_date", { ascending: false }),
   ]);
 
   const iwiGates: Pick<IwiGate, "id" | "iwi_name" | "scope" | "applies_to_kind" | "granted_at">[] =
@@ -56,11 +61,11 @@ export default async function TransparencyPage() {
         <Stat label="Active iwi gates" value={activeGates.length} icon={GitBranch} variant="success" />
         <Stat label="Total gates (incl. restricted)" value={iwiGates.length} icon={Activity} />
         <Stat
-          label="Governance entries"
-          value={governanceLog.length}
-          icon={CheckCircle2}
+          label="Field projects"
+          value={fieldProjectsResult.data?.length ?? 0}
+          icon={GitBranch}
         />
-        <Stat label="Last refresh" value={new Date().toLocaleTimeString("en-NZ", { hour: "2-digit", minute: "2-digit" })} icon={Clock} />
+        <Stat label="Governance entries" value={governanceLog.length} icon={CheckCircle2} />
       </section>
 
       <section className="mt-16">
