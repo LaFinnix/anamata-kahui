@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, Music, BarChart3, Upload, BookOpen, Code2, Shield, LogOut } from "lucide-react";
+import { LayoutDashboard, Music, BarChart3, Upload, BookOpen, Code2, Shield } from "lucide-react";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LogoutButton } from "@/components/auth/logout-button";
 import type { UserRole } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -104,12 +104,7 @@ export default async function DashboardLayout({
               </Badge>
             )}
           </div>
-          <form action="/api/auth/logout" method="post">
-            <Button variant="ghost" size="sm" className="w-full justify-start" type="submit">
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </Button>
-          </form>
+          <LogoutButton className="w-full justify-start" />
         </div>
       </aside>
 
@@ -119,11 +114,7 @@ export default async function DashboardLayout({
           <Link href="/admin" className="font-display text-lg font-semibold">
             Anamata Kāhui
           </Link>
-          <form action="/api/auth/logout" method="post">
-            <Button variant="ghost" size="sm" type="submit">
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </form>
+          <LogoutButton />
         </header>
         <main className="flex-1 overflow-auto p-6 sm:p-8">{children}</main>
       </div>

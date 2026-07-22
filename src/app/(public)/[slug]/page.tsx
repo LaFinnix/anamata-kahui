@@ -54,7 +54,7 @@ const BRANCH_LANDING: Record<BranchSlug, BranchLandingConfig> = {
       { title: "Portfolios",      body: "Each artist or designer has a portfolio with provenance and exhibition history." },
       { title: "Commissions",     body: "Brief intake and project tracking for commissioned work." },
     ],
-    cta: { label: "Visit the gallery", href: "/arts" },
+    cta: { label: "Open the Arts dashboard", href: "/arts/dashboard" },
   },
   dev: {
     tagline:
