@@ -1,0 +1,118 @@
+{
+  "brand": {
+    "name": "Anamata Kāhui",
+    "tagline": "A collective platform unifying records, research, creative arts, and technology for Aotearoa."
+  },
+  "nav": {
+    "about": "About",
+    "contact": "Contact",
+    "branches": "Branches",
+    "signIn": "Sign in",
+    "join": "Join",
+    "language": "Language",
+    "switchBranch": "Switch branch"
+  },
+  "home": {
+    "eyebrow": "Aotearoa · Māori-led ecosystem",
+    "heroLineOne": "Four branches.",
+    "heroLineTwo": "One kāhui.",
+    "lede": "Anamata Kāhui is the collective platform unifying Anamata Records, Research & Language Preservation, Creative Arts, and Technology & Development. Built for artists, researchers, and clients who want everything in one place — and nothing held back.",
+    "primaryCta": "Join the Kāhui",
+    "secondaryCta": "Explore Anamata Records",
+    "branchesTitle": "The four branches",
+    "branchesLede": "Each branch has its own team, tooling, and dashboard — but they all share the same auth, the same data model, and the same cultural foundation.",
+    "closerTitle": "Built on Supabase + Next.js. Deployed on Vercel.",
+    "closerLede": "Row-level security scopes every record to its owner. Branch membership controls the dashboards you see. Public routes stay fast with edge caching.",
+    "closerCtaSecondary": "About the Kāhui",
+    "closerCtaPrimary": "Get in touch",
+    "nzsISlot": "NZSL interpretation — coming soon",
+    "visitBranch": "Visit branch"
+  },
+  "branch": {
+    "records": {
+      "name": "Anamata Records",
+      "tagline": "Music branch — artist portal, release pipeline, stem vault, and royalty analytics.",
+      "highlights": {
+        "artistPortal": { "title": "Artist portal",     "body": "Each artist manages their roster, releases, and royalties in one place." },
+        "releasePipeline": { "title": "Release pipeline", "body": "Track a release from draft through scheduled drop to post-release analytics." },
+        "stemVault": { "title": "Stem vault",         "body": "Secure, versioned storage for masters, stems, and supporting artwork." },
+        "streamRoyalty": { "title": "Stream & royalty", "body": "Performance metrics from Spotify, Apple Music, and the local distributors." }
+      },
+      "cta": "Open the Records dashboard"
+    },
+    "research": {
+      "name": "Research & Language Preservation",
+      "tagline": "Knowledge vault, document archives, and field projects for language preservation.",
+      "highlights": {
+        "documentVault": { "title": "Document vault",    "body": "Searchable archive of primary sources, transcripts, and field notes." },
+        "fieldProjects": { "title": "Field projects",    "body": "Live tracker for in-progress fieldwork with iwi-gate and consent metadata." },
+        "languageTools": { "title": "Language tools",    "body": "Reo Māori corpus utilities — concordance, frequency, and dialect markers." },
+        "publications":  { "title": "Publications",      "body": "Peer-reviewed and community publications with DOI minting." }
+      },
+      "cta": "Open the Research portal"
+    },
+    "arts": {
+      "name": "Creative Arts",
+      "tagline": "Visual arts, digital media showcase, and cultural design portfolios.",
+      "highlights": {
+        "galleries":  { "title": "Galleries",      "body": "Curated collections of visual work — high-resolution, slow-loaded, captioned." },
+        "digitalMedia":{ "title": "Digital media",  "body": "Generative, motion, and interactive pieces served from edge-cached storage." },
+        "portfolios": { "title": "Portfolios",      "body": "Each artist or designer has a portfolio with provenance and exhibition history." },
+        "commissions":{ "title": "Commissions",     "body": "Brief intake and project tracking for commissioned work." }
+      },
+      "cta": "Visit the gallery"
+    },
+    "dev": {
+      "name": "Technology & Development",
+      "tagline": "Software projects, client tools, and internal automation for the Kāhui.",
+      "highlights": {
+        "clientTools": { "title": "Client tools",   "body": "Dashboards and utilities built for the Kāhui's partners." },
+        "openSource":  { "title": "Open source",    "body": "Reusable libraries and starters released under permissive licences." },
+        "automation":  { "title": "Automation",     "body": "Internal scripts and pipelines for catalog, release, and analytics work." },
+        "apiConsole":  { "title": "API console",    "body": "Authenticated route to manage API keys and integration secrets." }
+      },
+      "cta": "Open the Dev console"
+    }
+  },
+  "branchesDropdown": {
+    "label": "The Kāhui"
+  },
+  "about": {
+    "title": "About Anamata Kāhui",
+    "lede": "Anamata Kāhui is the digital ecosystem that holds Anamata Records, Research & Language Preservation, Creative Arts, and Technology & Development under one roof. Each branch has its own team, dashboards, and tools — but they share the same auth, the same data model, and the same cultural foundation.",
+    "pillars": {
+      "tino":   { "title": "Tino rangatiratanga", "body": "Self-determination at every layer — the platform serves the people who build on it, not the other way around." },
+      "kaitiaki":{ "title": "Kaitiakitanga",     "body": "Cultural data is governed by the communities it comes from. RLS, consent metadata, and audit trails are first-class." },
+      "whanaunga":{ "title": "Whanaungatanga",   "body": "The four branches share an identity, an auth system, and a code of conduct. They don't exist in isolation." }
+    },
+    "getInvolvedTitle": "Get involved",
+    "getInvolvedLede": "Whether you're an artist, researcher, designer, or engineer — there's a place in the Kāhui."
+  },
+  "contact": {
+    "title": "Contact",
+    "lede": "Drop us a line. We reply within a few working days.",
+    "cardTitle": "Send a message",
+    "cardLede": "For licensing, partnerships, or general enquiries.",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "submit": "Send"
+  },
+  "footer": {
+    "tagline": "A collective platform unifying records, research, creative arts, and technology for Aotearoa.",
+    "branchesTitle": "Branches",
+    "platformTitle": "Platform",
+    "legalTitle": "Legal",
+    "copyright": "All rights reserved."
+  },
+  "auth": {
+    "login": { "title": "Sign in", "lede": "Access the artist portal, dashboards, and the Kāhui console." },
+    "register": { "title": "Join the Kāhui", "lede": "Create an account to access the artist portal and dashboards." },
+    "reset": { "title": "Reset password", "lede": "We'll send a recovery link to your email.", "submit": "Send recovery link" },
+    "forgot": "Forgot?",
+    "signInCta": "Sign in",
+    "newHere": "New to the Kāhui?",
+    "haveAccount": "Already have an account?",
+    "createAccountCta": "Create an account"
+  }
+}

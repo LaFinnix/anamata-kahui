@@ -13,9 +13,13 @@ import type { CookieOptions } from "@supabase/ssr";
  *
  * It also gates the (dashboard) route group — unauthenticated users get
  * redirected to /login.
+ *
+ * `passthrough` is an optional response from a prior middleware (e.g. the
+ * intl locale middleware). If provided, cookies it set are preserved on
+ * the response we ultimately return.
  */
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
+export async function updateSession(request: NextRequest, passthrough?: NextResponse) {
+  let response = passthrough ?? NextResponse.next({
     request: {
       headers: request.headers,
     },
