@@ -39,6 +39,40 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 const catalogPath = "/opt/data/anamata/catalog/catalog.json";
 const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
 
+// Release date fallback: parse ROLLOUT-SCHEDULE.md for the 5 released waiata
+// since catalog.json doesn't carry dates. Falls back to null for everything else.
+function loadReleaseDatesFromSchedule() {
+  try {
+    const fs = require("node:fs");
+    const schedPath = "/opt/data/anamata/release/ROLLOUT-SCHEDULE.md";
+    const text = fs.readFileSync(schedPath, "utf8");
+    const map = new Map();
+    // Match table rows: | Title | Slug | Released | Notes |
+    const rowRe = /^\|\s*(?:\*\*)?([^*\n|]+?)(?:\*\*)?\s*\|\s*`([^`]+)`\s*\|\s*([^|\n]+?)\s*\|/gm;
+    let m;
+    while ((m = rowRe.exec(text)) !== null) {
+      const title = m[1].trim();
+      const slug = m[2].trim();
+      const dateText = m[3].trim();
+      // Skip header
+      if (title === "Title" || dateText === "Released") continue;
+      // Parse: "live", "TBC", "2024-03-15", "15 Mar 2024", etc.
+      let iso = null;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateText)) {
+        iso = dateText;
+      } else if (dateText.toLowerCase() === "live") {
+        // Skip — no specific date
+        continue;
+      }
+      if (iso) map.set(slug, iso);
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+const releaseDateBySlug = loadReleaseDatesFromSchedule();
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 });

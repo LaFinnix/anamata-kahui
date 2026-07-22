@@ -4,7 +4,11 @@ import { TrendingUp, Users, Globe2, Mic, Languages, FileCheck2 } from "lucide-re
 
 import { createAdminClient } from "@/lib/supabase/clients";
 
-export const metadata = { title: "Impact" };
+export const metadata = {
+  title: "Impact",
+  description:
+    "Outcomes dashboard for Anamata Kāhui — cultural, governance, and industry metrics. Real numbers from our Supabase tables, not fabricated.",
+};
 export const revalidate = 300; // 5-minute refresh
 
 /**

@@ -1,7 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export const metadata = { title: "Accessibility" };
+export const metadata = {
+  title: "Accessibility",
+  description:
+    "Anamata Kāhui's WCAG 2.2 AA accessibility statement — trilingual production (English, te reo Māori, NZSL), Easy Read, and quarterly review by Arts Access Aotearoa.",
+};
 
 /**
  * Formal accessibility statement — required by funders scoring on

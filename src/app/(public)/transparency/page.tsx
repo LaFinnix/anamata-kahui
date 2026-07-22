@@ -5,7 +5,11 @@ import { Activity, GitBranch, CheckCircle2, Clock, AlertCircle, FileText } from 
 import { createServerSupabase } from "@/lib/supabase/clients";
 import type { IwiGate } from "@/lib/types";
 
-export const metadata = { title: "Transparency" };
+export const metadata = {
+  title: "Transparency",
+  description:
+    "Live cultural review pipeline, iwi gates, and consent decisions at Anamata Kāhui — the operational evidence behind every word on our kaitiakitanga page.",
+};
 export const revalidate = 60; // refresh counts every 60s
 
 /**

@@ -91,6 +91,76 @@ export interface KaitiakiRoopuMember {
   notes: string | null;
 }
 
+// Research — migration 0004
+export type ResearchDocStatus =
+  | "draft"
+  | "submitted"
+  | "in_review"
+  | "published"
+  | "retracted";
+
+export interface ResearchDocument {
+  id: string;
+  branch_id: string;
+  title: string;
+  abstract: string | null;
+  publication_date: string | null;
+  doi: string | null;
+  pdf_url: string | null;
+  language_code: string | null;
+  iwi_consent_id: string | null;
+  access_tier: "open" | "iwi_only" | "restricted" | "tapu";
+  methodology: string | null;
+  venue: string | null;
+  status: ResearchDocStatus;
+  keywords: string[];
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ResearchDocumentAuthor {
+  id: string;
+  document_id: string;
+  author_profile_id: string | null;
+  author_name: string | null;
+  affiliation: string | null;
+  position: number;
+  is_corresponding: boolean;
+}
+
+export interface ResearchDocumentCitation {
+  id: string;
+  document_id: string;
+  cited_doc_id: string | null;
+  cited_release_id: string | null;
+  external_url: string | null;
+  citation_text: string | null;
+}
+
+export type FieldProjectStatus =
+  | "planning"
+  | "active"
+  | "paused"
+  | "completed"
+  | "archived";
+
+export interface ResearchFieldProject {
+  id: string;
+  title: string;
+  lead_profile_id: string | null;
+  iwi_consent_id: string | null;
+  location: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  status: FieldProjectStatus;
+  summary: string | null;
+  methodology: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Branch {
   id: string;
   slug: BranchSlug;

@@ -2,7 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Users, Calendar, Vote, FileText } from "lucide-react";
 
-export const metadata = { title: "Governance" };
+export const metadata = {
+  title: "Governance",
+  description:
+    "How Anamata Kāhui is governed — board composition, decision rights, kaitiaki rōpū, meeting cadence, and operational Tiriti o Waitangi integration.",
+};
 
 /**
  * Public governance page.

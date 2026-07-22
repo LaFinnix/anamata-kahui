@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
-export const metadata = { title: "About" };
-
+export const metadata = {
+  title: "About",
+  description:
+    "Anamata Kāhui is a Māori-led collective platform unifying Anamata Records, Research & Language Preservation, Creative Arts, and Technology & Development under one cultural foundation.",
+};
 const PILLARS = [
   {
     title: "Tino rangatiratanga",

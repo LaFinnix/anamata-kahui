@@ -2,7 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Database, Shield, Eye, FileText, Download, XCircle } from "lucide-react";
 
-export const metadata = { title: "Kaitiakitanga" };
+export const metadata = {
+  title: "Kaitiakitanga",
+  description:
+    "How Anamata Kāhui holds cultural data on behalf of the communities it comes from — Te Mana Raraunga CARE principles, iwi consent lineage, and right of withdrawal.",
+};
 
 const PRINCIPLES = [
   {
