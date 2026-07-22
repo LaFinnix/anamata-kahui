@@ -212,16 +212,23 @@ export default function ForFundersPage() {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
-            href="/contact"
+            href="/press/funder-kit.pdf"
+            download
             className="inline-flex items-center gap-2 rounded-md bg-bronze-400 px-4 py-2.5 text-sm font-medium text-background hover:bg-bronze-300 shadow"
           >
-            Contact the Kāhui <ArrowRight className="h-4 w-4" />
+            Download Funder Pack (PDF) <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
-            href="/funding"
+            href="/press"
             className="inline-flex items-center gap-2 rounded-md border border-bronze-500/40 bg-transparent px-4 py-2.5 text-sm font-medium text-foreground hover:bg-bronze-900/40"
           >
-            View funding history
+            View Press Kit
+          </Link>
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-2 rounded-md border border-bronze-500/40 bg-transparent px-4 py-2.5 text-sm font-medium text-foreground hover:bg-bronze-900/40"
+          >
+            Contact the Kāhui
           </Link>
         </div>
       </section>

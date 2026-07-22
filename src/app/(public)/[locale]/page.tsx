@@ -126,7 +126,7 @@ export default async function HomePage() {
             </div>
             <div className="flex flex-wrap gap-3 md:justify-end">
               <Button asChild variant="secondary">
-                <Link href="/about">About the Kāhui</Link>
+                <Link href="/press">Press & Funder Pack</Link>
               </Button>
               <Button asChild>
                 <Link href="/contact">Get in touch</Link>
