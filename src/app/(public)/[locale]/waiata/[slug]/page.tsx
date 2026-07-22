@@ -6,6 +6,7 @@ import { createAdminClient, createServerSupabase } from "@/lib/supabase/clients"
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LocalContextsLabels } from "@/components/local-contexts/labels-display";
+import { CulturalProvenanceHero } from "@/components/local-contexts/cultural-provenance-hero";
 import { LocalContextsExplainer } from "@/components/local-contexts/explainer";
 
 export const revalidate = 300; // refresh every 5 minutes
@@ -116,6 +117,37 @@ export default async function WaiataPage({ params }: PageProps) {
           </div>
         )}
       </section>
+
+      {/* Cultural provenance hero — above the fold for funder visibility */}
+      {(labelLinks ?? []).length > 0 && (
+        <section className="not-prose mt-8">
+          <CulturalProvenanceHero
+            labels={(labelLinks ?? []).map((l) => ({
+              id: l.id,
+              label_id: l.label_id,
+              release_id: l.release_id ?? null,
+              research_document_id: l.research_document_id ?? null,
+              applied_by: l.applied_by ?? null,
+              applied_at: l.applied_at ?? new Date().toISOString(),
+              evidence_url: l.evidence_url ?? null,
+              scope: l.scope ?? null,
+              status: l.status ?? "active",
+              label: Array.isArray(l.label)
+                ? l.label[0] ?? undefined
+                : ((l.label as unknown as {
+                    id: string;
+                    slug: string;
+                    family: "tk" | "bc" | "notice";
+                    label: string;
+                    description: string | null;
+                    canonical_url: string | null;
+                    requires_attribution: boolean;
+                    is_non_commercial: boolean;
+                  } | null) ?? undefined),
+            }))}
+          />
+        </section>
+      )}
 
       {release.description && (
         <section className="not-prose mt-10">
