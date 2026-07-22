@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { Check, ChevronDown, Globe } from "lucide-react";
 
 import {
@@ -13,105 +13,92 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { ACTIVE_LOCALES, ALL_LOCALES, type LocaleCode } from "@/i18n/locales";
+import { ACTIVE_LOCALES, ALL_LOCALES } from "@/i18n/locales";
 import { cn } from "@/lib/utils";
-
-interface LanguageSwitcherProps {
-  /**
-   * The currently active locale. Once `[locale]` route group is wired up,
-   * read this from `useLocale()`. For now it defaults to "en" and the
-   * picker links to `/en/...` and `/mi/...` URLs (which 404 until the
-   * locale wrap is committed, but structurally functional).
-   */
-  currentLocale?: LocaleCode;
-}
 
 /**
  * Language switcher for the public site header.
  *
- * - Active locales are clickable — they swap to the same path under the new
- *   locale prefix.
- * - Stub locales (ja, zh, es, ...) are visible in the list with a "coming soon"
- *   badge so the platform signals global-readiness without claiming support
- *   it doesn't have.
+ * Reads the active locale from next-intl's `useLocale()`. When the user
+ * picks a different locale, we strip the existing prefix from the
+ * pathname and prepend the new locale. The middleware then resolves
+ * `/mi/about` → the `/[locale]/about` route with the message catalogue
+ * for `mi`.
  */
-export function LanguageSwitcher({ currentLocale = "en" }: LanguageSwitcherProps) {
-  const pathname = usePathname();
+export function LanguageSwitcher() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const currentLocale = useLocale();
+
+  function switchTo(target: string) {
+    setOpen(false);
+    if (target === currentLocale) return;
+
+    // Strip the existing locale prefix (if any) and prepend the new one
+    const stripped = pathname.replace(/^\/(en|mi)/, "") || "/";
+    const targetPath =
+      stripped === "/" ? `/${target}` : `/${target}${stripped}`;
+    router.push(targetPath);
+  }
 
   const activeMeta = ACTIVE_LOCALES.find((l) => l.code === currentLocale);
-
-  // Strip any leading /:locale/ segment so we can rebuild the URL with a new prefix.
-  const stripLocale = (path: string) => {
-    const match = path.match(/^\/([a-z]{2,3})(\/|$)/);
-    if (!match) return path;
-    return path.slice(match[0].length - (match[2] === "/" ? 1 : 0)) || "/";
-  };
-
-  const buildHref = (locale: string) => `/${locale}${stripLocale(pathname)}`;
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
         className={cn(
-          "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium",
-          "text-foreground/80 hover:text-foreground hover:bg-muted",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          "data-[state=open]:bg-muted data-[state=open]:text-foreground",
+          "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium",
+          "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
         aria-label="Switch language"
       >
-        <Globe className="h-4 w-4 opacity-70" />
+        <Globe className="h-3 w-3" />
         <span className="hidden sm:inline">{activeMeta?.endonym ?? "Language"}</span>
-        <span className="sm:hidden">{activeMeta?.code.toUpperCase() ?? "EN"}</span>
-        <ChevronDown className="h-4 w-4 opacity-60" />
+        <span className="sm:hidden">{currentLocale.toUpperCase()}</span>
+        <ChevronDown className="h-3 w-3 opacity-60" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel>Language · Reo</DropdownMenuLabel>
         <DropdownMenuSeparator />
-
-        {ACTIVE_LOCALES.map((locale) => {
-          const isActive = currentLocale === locale.code;
+        {ACTIVE_LOCALES.map((loc) => {
+          const isActive = currentLocale === loc.code;
           return (
             <DropdownMenuItem
-              key={locale.code}
-              asChild
-              className={cn(isActive && "bg-muted text-foreground")}
+              key={loc.code}
+              onClick={() => switchTo(loc.code)}
+              className={cn(
+                "flex items-center justify-between py-2",
+                isActive && "bg-muted text-foreground",
+              )}
             >
-              <Link
-                href={buildHref(locale.code)}
-                className="flex items-center justify-between py-2"
-                onClick={() => setOpen(false)}
-              >
-                <div className="flex flex-col">
-                  <span className="font-medium">{locale.endonym}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {locale.englishName}
-                  </span>
-                </div>
-                {isActive && <Check className="h-4 w-4 text-bronze-300" />}
-              </Link>
+              <div className="flex flex-col">
+                <span className="font-medium">{loc.endonym}</span>
+                <span className="text-xs text-muted-foreground">
+                  {loc.englishName}
+                </span>
+              </div>
+              {isActive && <Check className="h-4 w-4 text-bronze-300" />}
             </DropdownMenuItem>
           );
         })}
-
         <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-muted-foreground/70">
+        <DropdownMenuLabel className="text-xs uppercase tracking-wider text-muted-foreground">
           Coming soon
         </DropdownMenuLabel>
-        {ALL_LOCALES.filter((l) => l.status === "stub").map((locale) => (
+        {ALL_LOCALES.filter((l) => l.status === "stub").map((loc) => (
           <DropdownMenuItem
-            key={locale.code}
+            key={loc.code}
             disabled
-            className="flex items-center justify-between opacity-60"
+            className="flex items-center justify-between opacity-50 py-2"
           >
             <div className="flex flex-col">
-              <span className="font-medium">{locale.endonym}</span>
+              <span className="font-medium">{loc.endonym}</span>
               <span className="text-xs text-muted-foreground">
-                {locale.englishName}
+                {loc.englishName}
               </span>
             </div>
-            <span className="text-xs text-muted-foreground/70">soon</span>
+            <span className="text-xs italic text-muted-foreground">soon</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

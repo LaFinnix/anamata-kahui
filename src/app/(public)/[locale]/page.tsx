@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen, Code2, Music, Palette } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,8 @@ const ICONS = {
 export const revalidate = 60;
 
 export default async function HomePage() {
+  const t = await getTranslations("home");
+  const tBranch = await getTranslations("branch");
   const admin = createAdminClient();
   const [released, iwiGates] = await Promise.all([
     admin.from("releases").select("id", { count: "exact", head: true }).eq("status", "released"),
@@ -37,33 +40,32 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-hero-glow" aria-hidden />
         <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
           <Badge variant="outline" className="mb-6">
-            Aotearoa · Māori-led ecosystem
+            {t("eyebrow")}
           </Badge>
           <h1 className="max-w-3xl text-balance text-5xl font-display font-semibold tracking-tight sm:text-6xl lg:text-7xl">
-            Four branches.<br />
-            <span className="text-bronze-300">One kāhui.</span>
+            {t.rich("heroLine", {
+              br: () => <br />,
+              accent: (chunks) => <span className="text-bronze-300">{chunks}</span>,
+            })}
           </h1>
           <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Anamata Kāhui is the collective platform unifying Anamata Records,
-            Research & Language Preservation, Creative Arts, and Technology &
-            Development. Built for artists, researchers, and clients who want
-            everything in one place — and nothing held back.
+            {t("lede")}
           </p>
 
           <dl className="mt-10 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
-            <Stat label="Released waiata" value={released.count ?? 0} />
-            <Stat label="Iwi gates" value={iwiGates.count ?? 0} />
-            <Stat label="Live branches" value={BRANCHES.length} />
+            <Stat label={t("stats.released")} value={released.count ?? 0} />
+            <Stat label={t("stats.iwiGates")} value={iwiGates.count ?? 0} />
+            <Stat label={t("stats.liveBranches")} value={BRANCHES.length} />
           </dl>
 
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div className="flex flex-col items-start gap-4 sm:flex-row">
             <Button asChild size="lg">
               <Link href="/register">
-                Join the Kāhui <ArrowRight className="h-4 w-4" />
+                {t("joinCta")} <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button asChild variant="secondary" size="lg">
-              <Link href="/records">Explore Anamata Records</Link>
+              <Link href="/records">{t("exploreCta")}</Link>
             </Button>
           </div>
         </div>
@@ -73,7 +75,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="mb-12 max-w-2xl">
           <h2 className="text-3xl font-display font-semibold tracking-tight sm:text-4xl">
-            The four branches
+            {t("branchesTitle")}
           </h2>
           <p className="mt-4 text-muted-foreground">
             Each branch has its own team, tooling, and dashboard — but they all

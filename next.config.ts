@@ -1,4 +1,7 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   // App Router is default in Next 16; Turbopack is the default build engine.
@@ -18,4 +21,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Wrap with the next-intl plugin so getRequestConfig() is available
+// across all routes (including the [locale]/layout.tsx that calls
+// setRequestLocale + getMessages).
+export default withNextIntl(nextConfig);
