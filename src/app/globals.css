@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/* ============================================================================
+ * Anamata Kāhui — design tokens
+ *
+ * Aesthetic: clean, modern, high-tech indigenous. Dark mode default with warm
+ * bronze/gold accents. Tokens are exposed as Tailwind theme variables so any
+ * utility class (e.g. `bg-background`, `text-foreground`, `border-bronze-500`)
+ * resolves to a value defined here.
+ *
+ * Tailwind v4 reads the `@theme` block at build time and emits utility
+ * classes for every custom property. Changing a value here updates every
+ * consumer across the app.
+ * ========================================================================== */
+
+@theme {
+  /* Base palette — dark by default, warm undertones */
+  --color-background: #0b0a08;        /* near-black with warm bias */
+  --color-foreground: #f4ede0;        /* aged-paper ivory */
+  --color-muted: #1a1814;             /* card surface */
+  --color-muted-foreground: #a89e8b;  /* secondary text */
+  --color-border: #2a2620;            /* hairline divider */
+  --color-input: #1f1c17;             /* form input surface */
+  --color-ring: #c89a3c;              /* focus ring — bronze */
+
+  /* Card / popover — slightly elevated surfaces */
+  --color-card: #131110;
+  --color-card-foreground: #f4ede0;
+  --color-popover: #161412;
+  --color-popover-foreground: #f4ede0;
+
+  /* Brand — bronze / gold accent system */
+  --color-bronze-50:  #fbf6e8;
+  --color-bronze-100: #f3e7c1;
+  --color-bronze-200: #ead08a;
+  --color-bronze-300: #d9b15a;
+  --color-bronze-400: #c89a3c;        /* primary bronze */
+  --color-bronze-500: #a87a25;
+  --color-bronze-600: #825c1a;
+  --color-bronze-700: #5d4112;
+  --color-bronze-800: #3a290b;
+  --color-bronze-900: #1f1606;
+
+  /* Accent — pounamu (greenstone) for contrast on success / cultural states */
+  --color-pounamu-300: #7fb89a;
+  --color-pounamu-500: #3f8a6c;
+  --color-pounamu-700: #225a44;
+
+  /* State — destructive stays warm-red, not blue */
+  --color-destructive: #c0392b;
+  --color-destructive-foreground: #f4ede0;
+
+  /* Type scale */
+  --font-sans: "Inter", "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", "Geist Serif", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Radii */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+/* ============================================================================
+ * Base layer — sensible defaults so the layout doesn't need to reset on every
+ * page.
+ * ========================================================================== */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: dark;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background-color: var(--color-bronze-400);
+    color: var(--color-background);
+  }
+}
+
+/* ============================================================================
+ * Utility helpers — kept tight; extend via @layer components when reuse grows.
+ * ========================================================================== */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty  { text-wrap: pretty;  }
+
+  /* Soft radial glow used on hero sections — relies on a single gradient that
+     fades to the background colour, no fixed pixel positions. */
+  .bg-hero-glow {
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% 0%,
+        color-mix(in oklch, var(--color-bronze-500) 22%, transparent),
+        transparent 70%);
+  }
+}
