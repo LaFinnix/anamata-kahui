@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-07-22",
+  "open_now": [
+    {
+      "round": "**Outward Sound Round 4**",
+      "body": "NZ Music Commission",
+      "open": "(already open)",
+      "close": "Mon 27 Jul 2026",
+      "ask": "matched investment",
+      "status": "borderline",
+      "notes": "International market dev. Pre-tour state + need commercial export plan.",
+      "days_until_close": 5
+    },
+    {
+      "round": "**Outward Sound Round 5**",
+      "body": "NZ Music Commission",
+      "open": "(already open)",
+      "close": "Mon 12 Oct 2026",
+      "ask": "matched investment",
+      "status": "borderline",
+      "notes": "Same as Round 4. Later deadline gives more prep time.",
+      "days_until_close": 82
+    }
+  ],
+  "closing_soon": [
+    {
+      "round": "**Outward Sound Round 4**",
+      "body": "NZ Music Commission",
+      "open": "(already open)",
+      "close": "Mon 27 Jul 2026",
+      "ask": "matched investment",
+      "status": "borderline",
+      "notes": "International market dev. Pre-tour state + need commercial export plan.",
+      "days_until_close": 5
+    }
+  ],
+  "missed_recently": [],
+  "summary": {
+    "open_count": 2,
+    "closing_soon_count": 1,
+    "missed_count": 0
+  }
+}

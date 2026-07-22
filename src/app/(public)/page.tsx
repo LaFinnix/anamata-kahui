@@ -5,6 +5,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { Badge } from "@/components/ui/badge";
 import { BRANCHES } from "@/lib/branches";
 import type { BranchSlug } from "@/lib/types";
+import { createAdminClient } from "@/lib/supabase/clients";
 
 const BRANCH_HOMES: Record<BranchSlug, string> = {
   records:  "/records",
@@ -20,7 +21,15 @@ const ICONS = {
   dev: Code2,
 } as const;
 
-export default function HomePage() {
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const admin = createAdminClient();
+  const [released, iwiGates] = await Promise.all([
+    admin.from("releases").select("id", { count: "exact", head: true }).eq("status", "released"),
+    admin.from("iwi_gates").select("id", { count: "exact", head: true }),
+  ]);
+
   return (
     <>
       {/* Hero */}
@@ -40,6 +49,13 @@ export default function HomePage() {
             Development. Built for artists, researchers, and clients who want
             everything in one place — and nothing held back.
           </p>
+
+          <dl className="mt-10 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+            <Stat label="Released waiata" value={released.count ?? 0} />
+            <Stat label="Iwi gates" value={iwiGates.count ?? 0} />
+            <Stat label="Live branches" value={BRANCHES.length} />
+          </dl>
+
           <div className="mt-10 flex flex-wrap gap-3">
             <Button asChild size="lg">
               <Link href="/register">
@@ -118,5 +134,18 @@ export default function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="mt-1 font-display text-3xl font-semibold text-bronze-300">
+        {value}
+      </dd>
+    </div>
   );
 }
