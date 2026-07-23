@@ -50,6 +50,12 @@ export function SiteHeader() {
             {t("research")}
           </Link>
           <Link
+            href="/reads"
+            className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
+          >
+            Reads
+          </Link>
+          <Link
             href="/waiata"
             className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
           >

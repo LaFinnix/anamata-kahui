@@ -14,6 +14,7 @@ const FOOTER_LINKS = [
     title: "Platform",
     links: [
       { href: "/about",    label: "About the Kāhui" },
+      { href: "/reads",    label: "Reads" },
       { href: "/contact",  label: "Contact" },
       { href: "/login",    label: "Sign in" },
       { href: "/register", label: "Join" },
