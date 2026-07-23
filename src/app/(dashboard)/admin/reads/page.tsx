@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { FileText, Clock, ArrowRight } from "lucide-react";
+import { FileText, Clock, ArrowRight, Sparkles } from "lucide-react";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ActiveContextBanner } from "@/components/kahui/active-context-banner";
 import { CreateReadForm } from "@/components/admin/create-read-form";
 import { ReadAdminRow } from "@/components/admin/read-admin-row";
+import { QuickStartForm } from "@/components/admin/quick-start-form";
 
 export const metadata = {
   title: "Reads · Admin",
@@ -76,17 +77,36 @@ export default async function ReadsAdminPage() {
         </p>
       </div>
 
-      {/* Create new */}
+      {/* Quick-start with research-agent */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Sparkles className="h-4 w-4 text-bronze-300" />
+            Generate with research-agent
+          </CardTitle>
+          <CardDescription>
+            Compose a topic + SEO keyword + tags. The CLI runs on the
+            VPS (research-agent lives there, not in Vercel), pulls
+            sources from HN/Lobsters/Medium/Substack, writes a
+            90+ audit-score article with cultural-fidelity + brand
+            rules baked in, and INSERTs as a draft here. ~90s runtime,
+            ~$0.02 OpenRouter cost.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <QuickStartForm />
+        </CardContent>
+      </Card>
+
+      {/* Manual authoring */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <FileText className="h-4 w-4 text-bronze-300" />
-            New read
+            New read (manual)
           </CardTitle>
           <CardDescription>
-            Drafts are private until published. Choose the content type:
-            note (mid-length analysis), research (multi-week project),
-            or data_drop (analysis + downloadable dataset).
+            Write by hand. Drafts are private until published.
           </CardDescription>
         </CardHeader>
         <CardContent>

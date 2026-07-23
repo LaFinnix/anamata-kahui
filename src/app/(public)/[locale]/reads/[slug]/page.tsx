@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, Calendar, User } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/clients";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ReadHero } from "@/components/reads/read-hero";
 
 interface PageProps {
   params: Promise<{ slug: string; locale: string }>;
@@ -150,6 +151,17 @@ export default async function ReadDetailPage({ params }: PageProps) {
           </p>
         )}
       </header>
+
+      {/* Hero image — deterministic SVG, no external dependency */}
+      <div className="mb-8">
+        <ReadHero
+          title={read.title}
+          subtitle={read.subtitle}
+          authorName={read.author_name}
+          kind={read.kind as "note" | "research" | "data_drop"}
+          readingMinutes={read.reading_time_minutes}
+        />
+      </div>
 
       {/* Body — already rendered + sanitised HTML */}
       <div

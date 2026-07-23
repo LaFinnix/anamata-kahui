@@ -17,6 +17,7 @@
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/clients";
 import { renderMarkdown, estimateReadingTime, extractExcerpt } from "@/lib/reads/markdown";
+import { renderHeroSvg } from "@/lib/reads/hero";
 
 export interface ReadFormState {
   error?: string;
