@@ -10,7 +10,11 @@
     "signIn": "Sign in",
     "join": "Join",
     "language": "Language",
-    "switchBranch": "Switch branch"
+    "switchBranch": "Switch branch",
+    "research": "Research",
+    "records": "Records",
+    "reads": "Reads",
+    "news": "News"
   },
   "home": {
     "eyebrow": "Aotearoa · Māori-led ecosystem",
@@ -26,7 +30,8 @@
     "closerCtaSecondary": "About the Kāhui",
     "closerCtaPrimary": "Get in touch",
     "nzsISlot": "NZSL interpretation — coming soon",
-    "visitBranch": "Visit branch"
+    "visitBranch": "Visit branch",
+    "heroLine": "Four branches.<br/>One <accent>kāhui</accent>."
   },
   "branch": {
     "records": {

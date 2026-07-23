@@ -10,7 +10,11 @@
     "signIn": "Takiuru",
     "join": "Hono mai",
     "language": "Reo",
-    "switchBranch": "Huri peka"
+    "switchBranch": "Huri peka",
+    "research": "Rangahau",
+    "records": "Ngā Rekoata",
+    "reads": "Ngā Pānui",
+    "news": "Ngā Karere"
   },
   "home": {
     "eyebrow": "Aotearoa · He papaho Māori",
@@ -26,7 +30,8 @@
     "closerCtaSecondary": "Mō te Kāhui",
     "closerCtaPrimary": "Whakapā mai",
     "nzsISlot": "Whakamāori NZSL — hei ā muri ake",
-    "visitBranch": "Tirohia te peka"
+    "visitBranch": "Tirohia te peka",
+    "heroLine": "E wha ngā peka.<br/>Kotahi te <accent>kāhui</accent>."
   },
   "branch": {
     "records": {
