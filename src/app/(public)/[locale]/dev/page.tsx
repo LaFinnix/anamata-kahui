@@ -7,6 +7,9 @@ import {
   Database,
   ExternalLink,
   Wrench,
+  Clock,
+  Braces,
+  Regex,
 } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -72,6 +75,27 @@ export default function DevPage() {
             description="Live view of consent_log + data_governance_log. Every consent decision and governance event. Append-only, public-readable."
             href="/dev/tools/audit"
             badge="Governance"
+          />
+          <ToolCard
+            icon={Clock}
+            title="Cron expression parser"
+            description="Paste a cron expression, see what it does in plain English, and calculate the next 5 runs in any timezone. Standard 5-field syntax."
+            href="/dev/tools/cron"
+            badge="DevOps · Universal"
+          />
+          <ToolCard
+            icon={Braces}
+            title="JSON viewer / formatter / diff"
+            description="Paste JSON to view as a tree, format with 2-space indent, or diff two JSONs side-by-side. Pure client-side, no eval."
+            href="/dev/tools/json"
+            badge="Universal"
+          />
+          <ToolCard
+            icon={Regex}
+            title="Regex playground"
+            description="Type a regex pattern, paste a test string, see matches highlighted with capture groups. Native browser regex, no server."
+            href="/dev/tools/regex"
+            badge="Universal"
           />
         </div>
       </section>
