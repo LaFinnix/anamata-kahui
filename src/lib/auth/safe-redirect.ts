@@ -19,12 +19,21 @@ export function safeRedirect(
   fallback: string = "/admin",
 ): string {
   if (!input) return fallback;
+  // Trim whitespace — a URL like " /admin" or "/admin\n" would
+  // otherwise be passed through. Browsers may or may not strip
+  // whitespace before navigation, so we strip it explicitly.
+  const trimmed = input.trim();
+  if (!trimmed) return fallback;
   // Must start with a single forward slash — that's a path-absolute URL.
   // Reject protocol-relative ("//evil.com"), absolute ("http://..."),
   // and protocol schemes ("javascript:").
-  if (!input.startsWith("/")) return fallback;
-  if (input.startsWith("//")) return fallback;
+  if (!trimmed.startsWith("/")) return fallback;
+  if (trimmed.startsWith("//")) return fallback;
   // Reject backslash tricks — some browsers normalize \ to /
-  if (input.includes("\\")) return fallback;
-  return input;
+  if (trimmed.includes("\\")) return fallback;
+  // Reject control characters (newlines, tabs, NUL) which could
+  // confuse downstream parsers or allow header injection.
+  // eslint-disable-next-line no-control-regex
+  if (/[\x00-\x1f]/.test(trimmed)) return fallback;
+  return trimmed;
 }
