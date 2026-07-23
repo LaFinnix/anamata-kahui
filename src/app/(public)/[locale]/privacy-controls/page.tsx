@@ -68,9 +68,9 @@ function PrivacyControlsAnon({ title, badge }: { title: string; badge: string })
   return (
     <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
       <Badge variant="outline" className="mb-4">{badge}</Badge>
-      <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
+      <h2 className="text-balance text-3xl font-display font-semibold tracking-tight sm:text-4xl">
         {title}
-      </h1>
+      </h2>
       <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
         The data export, deletion, and consent controls on this page are
         for signed-in users. If you have an account,{" "}
