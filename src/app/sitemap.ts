@@ -48,6 +48,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/reads/kind/note",
     "/reads/kind/research",
     "/reads/kind/data_drop",
+    "/news",
+    "/news/kind/release",
+    "/news/kind/feature",
+    "/news/kind/milestone",
+    "/news/kind/partner",
+    "/news/kind/update",
     "/research/about",
     "/research/field-projects",
     "/research/papers",
@@ -80,6 +86,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
+  // Fetch published news for individual entries
+  const { data: news } = await admin
+    .from("news_public")
+    .select("slug, kind, updated_at, published_at, is_seo_focused")
+    .order("published_at", { ascending: false })
+    .limit(200);
+
+  const newsEntries = (news ?? []).flatMap((n) =>
+    routing.locales.map((locale) => ({
+      url: `${base}/${locale}/news/${n.slug}`,
+      lastModified: n.updated_at ? new Date(n.updated_at) : now,
+      changeFrequency: "weekly" as const,
+      priority: n.is_seo_focused ? 0.85 : 0.75,
+      alternates: {
+        languages: Object.fromEntries(
+          routing.locales.map((l) => [l, `${base}/${l}/news/${n.slug}`]),
+        ),
+      },
+    })),
+  );
+
   return [
     ...routing.locales.flatMap((locale) =>
       publicPaths.map((path) => {
@@ -106,5 +133,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }),
     ),
     ...readEntries,
+    ...newsEntries,
   ];
 }

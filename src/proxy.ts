@@ -39,6 +39,22 @@ export default async function proxy(request: NextRequest): Promise<NextResponse>
     }
   }
 
+  // 1b. Draft-news gate — same pattern, separate function.
+  const newsMatch = path.match(/^\/(en|mi)\/news\/([a-z0-9-]+)\/?$/);
+  if (newsMatch) {
+    const slug = newsMatch[2];
+    const { isNewsSlugPublished } = await import("@/lib/supabase/check-news-status");
+    const published = await isNewsSlugPublished(slug);
+    if (!published) {
+      return new NextResponse("Not Found", {
+        status: 404,
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      });
+    }
+  }
+
   // 2. Locale handling.
   const intlResponse = intl(request);
 

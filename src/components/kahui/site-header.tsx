@@ -56,6 +56,12 @@ export function SiteHeader() {
             Reads
           </Link>
           <Link
+            href="/news"
+            className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
+          >
+            News
+          </Link>
+          <Link
             href="/waiata"
             className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
           >
