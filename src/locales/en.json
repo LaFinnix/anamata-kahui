@@ -33,10 +33,22 @@
       "name": "Anamata Records",
       "tagline": "Music branch — artist portal, release pipeline, stem vault, and royalty analytics.",
       "highlights": {
-        "artistPortal": { "title": "Artist portal",     "body": "Each artist manages their roster, releases, and royalties in one place." },
-        "releasePipeline": { "title": "Release pipeline", "body": "Track a release from draft through scheduled drop to post-release analytics." },
-        "stemVault": { "title": "Stem vault",         "body": "Secure, versioned storage for masters, stems, and supporting artwork." },
-        "streamRoyalty": { "title": "Stream & royalty", "body": "Performance metrics from Spotify, Apple Music, and the local distributors." }
+        "artistPortal": {
+          "title": "Artist portal",
+          "body": "Each artist manages their roster, releases, and royalties in one place."
+        },
+        "releasePipeline": {
+          "title": "Release pipeline",
+          "body": "Track a release from draft through scheduled drop to post-release analytics."
+        },
+        "stemVault": {
+          "title": "Stem vault",
+          "body": "Secure, versioned storage for masters, stems, and supporting artwork."
+        },
+        "streamRoyalty": {
+          "title": "Stream & royalty",
+          "body": "Performance metrics from Spotify, Apple Music, and the local distributors."
+        }
       },
       "cta": "Open the Records dashboard"
     },
@@ -44,10 +56,22 @@
       "name": "Research & Language Preservation",
       "tagline": "Knowledge vault, document archives, and field projects for language preservation.",
       "highlights": {
-        "documentVault": { "title": "Document vault",    "body": "Searchable archive of primary sources, transcripts, and field notes." },
-        "fieldProjects": { "title": "Field projects",    "body": "Live tracker for in-progress fieldwork with iwi-gate and consent metadata." },
-        "languageTools": { "title": "Language tools",    "body": "Reo Māori corpus utilities — concordance, frequency, and dialect markers." },
-        "publications":  { "title": "Publications",      "body": "Peer-reviewed and community publications with DOI minting." }
+        "documentVault": {
+          "title": "Document vault",
+          "body": "Searchable archive of primary sources, transcripts, and field notes."
+        },
+        "fieldProjects": {
+          "title": "Field projects",
+          "body": "Live tracker for in-progress fieldwork with iwi-gate and consent metadata."
+        },
+        "languageTools": {
+          "title": "Language tools",
+          "body": "Reo Māori corpus utilities — concordance, frequency, and dialect markers."
+        },
+        "publications": {
+          "title": "Publications",
+          "body": "Peer-reviewed and community publications with DOI minting."
+        }
       },
       "cta": "Open the Research portal"
     },
@@ -55,10 +79,22 @@
       "name": "Creative Arts",
       "tagline": "Visual arts, digital media showcase, and cultural design portfolios.",
       "highlights": {
-        "galleries":  { "title": "Galleries",      "body": "Curated collections of visual work — high-resolution, slow-loaded, captioned." },
-        "digitalMedia":{ "title": "Digital media",  "body": "Generative, motion, and interactive pieces served from edge-cached storage." },
-        "portfolios": { "title": "Portfolios",      "body": "Each artist or designer has a portfolio with provenance and exhibition history." },
-        "commissions":{ "title": "Commissions",     "body": "Brief intake and project tracking for commissioned work." }
+        "galleries": {
+          "title": "Galleries",
+          "body": "Curated collections of visual work — high-resolution, slow-loaded, captioned."
+        },
+        "digitalMedia": {
+          "title": "Digital media",
+          "body": "Generative, motion, and interactive pieces served from edge-cached storage."
+        },
+        "portfolios": {
+          "title": "Portfolios",
+          "body": "Each artist or designer has a portfolio with provenance and exhibition history."
+        },
+        "commissions": {
+          "title": "Commissions",
+          "body": "Brief intake and project tracking for commissioned work."
+        }
       },
       "cta": "Visit the gallery"
     },
@@ -66,10 +102,22 @@
       "name": "Technology & Development",
       "tagline": "Software projects, client tools, and internal automation for the Kāhui.",
       "highlights": {
-        "clientTools": { "title": "Client tools",   "body": "Dashboards and utilities built for the Kāhui's partners." },
-        "openSource":  { "title": "Open source",    "body": "Reusable libraries and starters released under permissive licences." },
-        "automation":  { "title": "Automation",     "body": "Internal scripts and pipelines for catalog, release, and analytics work." },
-        "apiConsole":  { "title": "API console",    "body": "Authenticated route to manage API keys and integration secrets." }
+        "clientTools": {
+          "title": "Client tools",
+          "body": "Dashboards and utilities built for the Kāhui's partners."
+        },
+        "openSource": {
+          "title": "Open source",
+          "body": "Reusable libraries and starters released under permissive licences."
+        },
+        "automation": {
+          "title": "Automation",
+          "body": "Internal scripts and pipelines for catalog, release, and analytics work."
+        },
+        "apiConsole": {
+          "title": "API console",
+          "body": "Authenticated route to manage API keys and integration secrets."
+        }
       },
       "cta": "Open the Dev console"
     }
@@ -81,9 +129,18 @@
     "title": "About Anamata Kāhui",
     "lede": "Anamata Kāhui is the digital ecosystem that holds Anamata Records, Research & Language Preservation, Creative Arts, and Technology & Development under one roof. Each branch has its own team, dashboards, and tools — but they share the same auth, the same data model, and the same cultural foundation.",
     "pillars": {
-      "tino":   { "title": "Tino rangatiratanga", "body": "Self-determination at every layer — the platform serves the people who build on it, not the other way around." },
-      "kaitiaki":{ "title": "Kaitiakitanga",     "body": "Cultural data is governed by the communities it comes from. RLS, consent metadata, and audit trails are first-class." },
-      "whanaunga":{ "title": "Whanaungatanga",   "body": "The four branches share an identity, an auth system, and a code of conduct. They don't exist in isolation." }
+      "tino": {
+        "title": "Tino rangatiratanga",
+        "body": "Self-determination at every layer — the platform serves the people who build on it, not the other way around."
+      },
+      "kaitiaki": {
+        "title": "Kaitiakitanga",
+        "body": "Cultural data is governed by the communities it comes from. RLS, consent metadata, and audit trails are first-class."
+      },
+      "whanaunga": {
+        "title": "Whanaungatanga",
+        "body": "The four branches share an identity, an auth system, and a code of conduct. They don't exist in isolation."
+      }
     },
     "getInvolvedTitle": "Get involved",
     "getInvolvedLede": "Whether you're an artist, researcher, designer, or engineer — there's a place in the Kāhui."
@@ -106,13 +163,142 @@
     "copyright": "All rights reserved."
   },
   "auth": {
-    "login": { "title": "Sign in", "lede": "Access the artist portal, dashboards, and the Kāhui console." },
-    "register": { "title": "Join the Kāhui", "lede": "Create an account to access the artist portal and dashboards." },
-    "reset": { "title": "Reset password", "lede": "We'll send a recovery link to your email.", "submit": "Send recovery link" },
+    "login": {
+      "title": "Sign in",
+      "lede": "Access the artist portal, dashboards, and the Kāhui console."
+    },
+    "register": {
+      "title": "Join the Kāhui",
+      "lede": "Create an account to access the artist portal and dashboards."
+    },
+    "reset": {
+      "title": "Reset password",
+      "lede": "We'll send a recovery link to your email.",
+      "submit": "Send recovery link"
+    },
     "forgot": "Forgot?",
     "signInCta": "Sign in",
     "newHere": "New to the Kāhui?",
     "haveAccount": "Already have an account?",
     "createAccountCta": "Create an account"
+  },
+  "cookieConsent": {
+    "title": "Cookies on this site",
+    "body": "We use strictly-necessary cookies to keep the site working and optional analytics cookies to understand how it's used. You can accept all, reject non-essential, or customise.",
+    "accept": "Accept all",
+    "reject": "Reject non-essential",
+    "customise": "Customise",
+    "save": "Save preferences",
+    "categories": {
+      "necessary": {
+        "label": "Strictly necessary",
+        "description": "Required for the site to work. Always on."
+      },
+      "analytics": {
+        "label": "Analytics",
+        "description": "Help us understand how the site is used. Off by default."
+      },
+      "preferences": {
+        "label": "Preferences",
+        "description": "Remember your language and accessibility settings."
+      }
+    },
+    "viewPolicy": "View cookie policy"
+  },
+  "legal": {
+    "privacyNotice": {
+      "badge": "Legal · Privacy",
+      "title": "Privacy notice",
+      "summary": "This notice explains how Anamata Kāhui collects, holds, uses, and discloses your personal information under the NZ Privacy Act 2020. We also honour the CARE principles of Te Mana Raraunga Māori Data Sovereignty. The full document below is in English; a te reo Māori summary follows the table of contents.",
+      "effectiveDate": "Effective date",
+      "lastUpdated": "Last updated",
+      "nextReview": "Next review",
+      "tableOfContents": "Contents",
+      "tocPersonal": "What we collect",
+      "tocWhy": "Why we collect it",
+      "tocHow": "How we hold and protect it",
+      "tocShare": "When we share",
+      "tocRights": "Your rights",
+      "tocComplaints": "Complaints",
+      "contact": "Contact us about privacy"
+    },
+    "cookiePolicy": {
+      "badge": "Legal · Cookies",
+      "title": "Cookie policy",
+      "summary": "This policy lists every cookie set by anamatakahui.co.nz, what it does, how long it lives, and how you can control it. The full English policy is below; a te reo Māori summary explains the key points.",
+      "lastUpdated": "Last updated",
+      "contact": "Contact us about cookies"
+    },
+    "terms": {
+      "badge": "Legal · Terms",
+      "title": "Terms of use",
+      "summary": "These terms govern use of anamatakahui.co.nz and the four branches. By using the site you accept these terms. The full English terms are below; a te reo Māori summary explains the key points.",
+      "lastUpdated": "Last updated",
+      "contact": "Contact us about these terms"
+    }
+  },
+  "privacyControls": {
+    "anonymous": {
+      "badge": "Privacy · Self-service",
+      "title": "Privacy controls",
+      "lede": "Sign in to view your data, request export, request deletion, or change your public directory listing.",
+      "signInCta": "Sign in to manage privacy"
+    },
+    "signedIn": {
+      "title": "Your privacy controls",
+      "dataExport": {
+        "title": "Export your data",
+        "description": "Download a copy of your account data — profile, public directory listing, contact enquiries, and consent log entries.",
+        "button": "Request data export"
+      },
+      "dataDeletion": {
+        "title": "Request account deletion",
+        "description": "Submit a request for your account to be deleted. We'll confirm by email before any deletion takes effect.",
+        "button": "Request deletion"
+      },
+      "directory": {
+        "title": "Public directory listing",
+        "description": "Your profile may appear in the public Kāhui directory (for artists, researchers, designers). Toggle off to remove yourself.",
+        "optedIn": "Listed in the public directory",
+        "optedOut": "Not listed"
+      },
+      "cookies": {
+        "title": "Cookie preferences",
+        "description": "Update your consent for analytics and preferences cookies.",
+        "manage": "Manage cookies"
+      }
+    }
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you were looking for doesn't exist or has been moved.",
+      "home": "Go home"
+    },
+    "generic": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred. We've been notified. Please try again.",
+      "retry": "Try again",
+      "home": "Go home"
+    }
+  },
+  "research": {
+    "title": "Research & Language Preservation",
+    "lede": "Reo Māori research, field projects, and accessible scholarship — published openly."
+  },
+  "forFunders": {
+    "title": "For funders",
+    "lede": "For people and organisations deciding whether to fund Anamata Kāhui. Live evidence, active funding rounds, and the cultural-governance posture that de-risks investment."
+  },
+  "waiata": {
+    "title": "Anamata Records",
+    "lede": "The music branch — released waiata, roster, stem vault, and analytics."
+  },
+  "common": {
+    "loading": "Loading…",
+    "noResults": "No matches.",
+    "lastUpdated": "Last updated",
+    "viewAll": "View all",
+    "backTo": "Back to"
   }
 }

@@ -3,23 +3,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
 import { Download, Trash2, Eye, EyeOff, Shield } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
 import { PrivacyControlsAuthedClient } from "./_client";
 
-export const metadata = {
-  title: "Privacy controls",
-  description:
-    "Exercise your NZ Privacy Act 2020 rights — export your data, request deletion, withdraw consent, manage cookie preferences.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "privacyControls.anonymous" });
+  return {
+    title: t("title"),
+    description: t("lede").slice(0, 160),
+  };
+}
 
-export default async function PrivacyControlsPage() {
+export default async function PrivacyControlsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const tAnon = await getTranslations("privacyControls.anonymous");
+  const tSignedIn = await getTranslations("privacyControls.signedIn");
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     // Unauthenticated visitors see the educational surface.
-    return <PrivacyControlsAnon />;
+    return <PrivacyControlsAnon title={tAnon("title")} badge={tAnon("badge")} />;
   }
 
   const { data: profile } = await supabase
@@ -32,7 +43,7 @@ export default async function PrivacyControlsPage() {
     <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
       <Badge variant="outline" className="mb-4">Privacy controls · signed in</Badge>
       <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
-        Manage your data
+        {tSignedIn("title")}
       </h1>
       <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
         Signed in as <code>{user.email}</code>. Use the controls below to
@@ -53,12 +64,12 @@ export default async function PrivacyControlsPage() {
   );
 }
 
-function PrivacyControlsAnon() {
+function PrivacyControlsAnon({ title, badge }: { title: string; badge: string }) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
-      <Badge variant="outline" className="mb-4">Privacy controls</Badge>
+      <Badge variant="outline" className="mb-4">{badge}</Badge>
       <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
-        Your data, your rights
+        {title}
       </h1>
       <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
         The data export, deletion, and consent controls on this page are

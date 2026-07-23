@@ -1,18 +1,31 @@
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-export const metadata = {
-  title: "Cookie policy",
-  description:
-    "What cookies the Anamata Kāhui platform sets, why, and how to control them. Strictly necessary cookies only by default — no third-party tracking.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "legal.cookiePolicy" });
+  return {
+    title: t("title"),
+    description: t("summary").slice(0, 160),
+  };
+}
 
-const COOKIES = [
+interface CookieRow {
+  name: string;
+  category: string;
+  purpose: string;
+  lifetime: string;
+  domain: string;
+  provider: string;
+  control: string;
+}
+
+const COOKIES: CookieRow[] = [
   {
     name: "sb-<project>-auth-token",
     category: "Strictly necessary",
-    purpose:
-      "Supabase Auth session JWT. Identifies the signed-in user and refreshes their session. Cannot function without this cookie — auth would not work.",
+    purpose: "Supabase Auth session JWT. Identifies the signed-in user and refreshes their session. Cannot function without this cookie — auth would not work.",
     lifetime: "1 hour (auto-refreshed on activity)",
     domain: ".anamatakahui.co.nz",
     provider: "Supabase Inc.",
@@ -21,210 +34,136 @@ const COOKIES = [
   {
     name: "NEXT_LOCALE",
     category: "Strictly necessary",
-    purpose:
-      "next-intl locale preference. Remembers whether you've chosen te reo Māori or English so the next visit uses the same language.",
+    purpose: "Remembers your chosen language (en or mi) for next-intl. Without it, the site would default to English regardless of preference.",
     lifetime: "1 year",
-    domain: ".anamatakahui.co.nz",
-    provider: "Anamata Kāhui",
-    control:
-      "Cleared when you reset cookie preferences in /privacy-controls.",
+    domain: "anamatakahui.co.nz",
+    provider: "Vercel / next-intl",
+    control: "Cannot opt out. Clear site data to reset.",
   },
   {
     name: "kahui_cookie_consent",
-    category: "Preferences",
-    purpose:
-      "Records your cookie-category choices from the consent banner so we don't re-ask on every visit.",
+    category: "Strictly necessary",
+    purpose: "Records your cookie consent choice (accepted | essential_only). Not set until you choose; banner does not appear after.",
     lifetime: "1 year",
-    domain: ".anamatakahui.co.nz",
+    domain: "anamatakahui.co.nz",
     provider: "Anamata Kāhui",
-    control: "Manage via /privacy-controls.",
+    control: "Manage at /privacy-controls",
+  },
+  {
+    name: "kahui_active_context",
+    category: "Preferences",
+    purpose: "Stores your active branch + role context inside the dashboard (e.g. Music (Anamata Records) as artist). Set on switcher use.",
+    lifetime: "1 year",
+    domain: "anamatakahui.co.nz",
+    provider: "Anamata Kāhui",
+    control: "Manage at /privacy-controls",
   },
 ];
 
-export default function CookiePolicyPage() {
-  const lastUpdated = "2026-07-22";
+export default async function CookiePolicyPage() {
+  const t = await getTranslations("legal.cookiePolicy");
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
-      <Badge variant="outline" className="mb-4">Legal · Cookies</Badge>
+      <Badge variant="outline" className="mb-4">{t("badge")}</Badge>
       <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
-        Cookie policy
+        {t("title")}
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Last updated: <span className="font-mono">{lastUpdated}</span>
+        {t("lastUpdated")}: <span className="font-mono">2026-07-22</span>
       </p>
+
+      <aside
+        aria-label="Whakarāpopototanga reo Māori"
+        className="mt-8 rounded-md border border-pounamu-500/30 bg-pounamu-500/5 p-5 text-sm"
+      >
+        <p className="font-medium text-pounamu-200">Whakarāpopototanga reo Māori</p>
+        <p className="mt-2 text-muted-foreground">{t("summary")}</p>
+      </aside>
 
       <div className="prose prose-invert mt-10 max-w-none">
         <p>
-          Cookies are small text files stored on your device when you
-          visit a website. They help the site function, remember your
-          preferences, and (sometimes) help the site owner understand
-          how the site is used.
+          What cookies the Anamata Kāhui platform sets, why, and how to
+          control them. Strictly necessary cookies only by default — no
+          third-party tracking. The platform ships zero analytics
+          cookies today.
         </p>
-
-        <h2>What cookies we use</h2>
+        <h2>What is a cookie</h2>
         <p>
-          <strong>By default, the platform uses only strictly necessary
-          cookies.</strong> No analytics, no advertising, no third-party
-          tracking. We ship privacy-friendly by design.
+          A cookie is a small text file your browser stores at the
+          request of a website. Cookies are how the site remembers you
+          between requests. They cannot run code or read other files on
+          your device.
         </p>
-
-        <h3>Strictly necessary (always on)</h3>
+        <h2>Categories used</h2>
         <p>
-          These cookies are required for the platform to function.
-          They cannot be disabled while using the site.
+          We use two categories. Both are explained below. The full table
+          is on this page.
         </p>
+      </div>
 
-        <table>
+      <h2 className="mt-10 font-display text-2xl">Cookies set by this site</h2>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
           <thead>
-            <tr>
-              <th>Cookie</th>
-              <th>Purpose</th>
-              <th>Lifetime</th>
-              <th>Provider</th>
+            <tr className="border-b border-border text-left">
+              <th className="py-2 pr-4 font-medium">Name</th>
+              <th className="py-2 pr-4 font-medium">Category</th>
+              <th className="py-2 pr-4 font-medium">Lifetime</th>
+              <th className="py-2 font-medium">Control</th>
             </tr>
           </thead>
           <tbody>
-            {COOKIES.filter((c) => c.category === "Strictly necessary").map((c) => (
-              <tr key={c.name}>
-                <td><code>{c.name}</code></td>
-                <td>{c.purpose}</td>
-                <td>{c.lifetime}</td>
-                <td>{c.provider}</td>
+            {COOKIES.map((c) => (
+              <tr key={c.name} className="border-b border-border">
+                <td className="py-3 pr-4 font-mono text-xs">{c.name}</td>
+                <td className="py-3 pr-4">{c.category}</td>
+                <td className="py-3 pr-4 text-xs">{c.lifetime}</td>
+                <td className="py-3 text-xs">{c.control}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
 
-        <h3>Preferences</h3>
+      <h2 className="mt-10 font-display text-2xl">Detail per cookie</h2>
+      <div className="mt-4 space-y-4">
+        {COOKIES.map((c) => (
+          <div key={c.name} className="rounded-md border border-border p-4 text-sm">
+            <p className="font-mono text-xs">{c.name}</p>
+            <p className="mt-1 font-medium">{c.category}</p>
+            <p className="mt-1 text-muted-foreground">{c.purpose}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Domain: {c.domain} · Lifetime: {c.lifetime} · Provider: {c.provider}
+            </p>
+            <p className="mt-1 text-xs">{c.control}</p>
+          </div>
+        ))}
+      </div>
+
+      <h2 className="mt-10 font-display text-2xl">Controlling cookies</h2>
+      <div className="prose prose-invert mt-4 max-w-none">
         <p>
-          Set only when you explicitly opt in via the cookie banner or{" "}
-          <Link href="/privacy-controls">/privacy-controls</Link>.
+          Use the in-app controls at{" "}
+          <Link href="/privacy-controls" className="text-bronze-300 hover:text-bronze-200 underline">
+            /privacy-controls
+          </Link>{" "}
+          to manage cookie preferences. Strictly necessary cookies cannot
+          be opted out of because the platform would not function without
+          them. Analytics cookies are not currently set.
         </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Cookie</th>
-              <th>Purpose</th>
-              <th>Lifetime</th>
-              <th>Provider</th>
-            </tr>
-          </thead>
-          <tbody>
-            {COOKIES.filter((c) => c.category === "Preferences").map((c) => (
-              <tr key={c.name}>
-                <td><code>{c.name}</code></td>
-                <td>{c.purpose}</td>
-                <td>{c.lifetime}</td>
-                <td>{c.provider}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <h3>Analytics</h3>
+        <h2>Do Not Track</h2>
         <p>
-          We do not currently use any analytics cookies. If we add them in
-          the future (e.g. a privacy-respecting tool like Plausible or
-          Fathom), this page will list them with a category
-          "Analytics — only with consent" and we'll ask for consent via the
-          cookie banner before they're set.
+          If your browser sends the DNT header, we do not set any
+          optional cookies regardless of your consent choice.
         </p>
-
-        <h3>Embedded content</h3>
+        <h2>{t("contact")}</h2>
         <p>
-          The platform may embed content from third parties (e.g. Spotify,
-          Apple Music, YouTube iframes on the waiata detail page). When you
-          interact with those embeds, the third party may set its own
-          cookies. These are governed by the third party's privacy
-          policy, not ours:
-        </p>
-        <ul>
-          <li>
-            <a
-              href="https://www.spotify.com/legal/privacy-policy/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-bronze-300 hover:text-bronze-200"
-            >
-              Spotify
-            </a>{" "}
-            — listening behaviour, IP, device info
-          </li>
-          <li>
-            <a
-              href="https://www.apple.com/legal/privacy/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-bronze-300 hover:text-bronze-200"
-            >
-              Apple Music
-            </a>{" "}
-            — embedded player behaviour
-          </li>
-          <li>
-            <a
-              href="https://policies.google.com/privacy"
-              target="_blank"
-              rel="noreferrer"
-              className="text-bronze-300 hover:text-bronze-200"
-            >
-              YouTube
-            </a>{" "}
-            — viewing behaviour, IP, device info
-          </li>
-          <li>
-            <a
-              href="https://resend.com/legal/privacy-policy"
-              target="_blank"
-              rel="noreferrer"
-              className="text-bronze-300 hover:text-bronze-200"
-            >
-              Resend
-            </a>{" "}
-            (contact form email delivery) — sender IP, message metadata
-          </li>
-        </ul>
-
-        <h2>Your choices</h2>
-        <ul>
-          <li>
-            <strong>Cookie banner.</strong> First visit shows a consent
-            banner with "Accept all", "Reject non-essential", and
-            "Customise" options. Your choice is remembered for 1 year.
-          </li>
-          <li>
-            <strong>Manage preferences anytime.</strong> Visit{" "}
-            <Link href="/privacy-controls">/privacy-controls</Link> to
-            change your choices.
-          </li>
-          <li>
-            <strong>Browser controls.</strong> Most browsers let you block
-            or delete cookies. Blocking strictly necessary cookies will
-            break the platform (you won't be able to sign in).
-          </li>
-          <li>
-            <strong>Do Not Track.</strong> We honour DNT signals — no
-            tracking cookies will be set if your browser sends this header.
-          </li>
-          <li>
-            <strong>Third-party embeds.</strong> You can avoid third-party
-            cookies by not interacting with embedded Spotify / Apple Music
-            / YouTube players.
-          </li>
-        </ul>
-
-        <h2>Changes to this policy</h2>
-        <p>
-          We update this policy when cookie usage changes. The "Last
-          updated" date at the top shows the latest revision. Material
-          changes will be announced via the cookie banner on next visit.
-        </p>
-
-        <h2>Contact</h2>
-        <p>
-          Questions about cookies:{" "}
-          <a href="mailto:privacy@anamatakahui.co.nz">privacy@anamatakahui.co.nz</a>
+          Questions about cookies? Email{" "}
+          <a href="mailto:privacy@anamatakahui.co.nz" className="text-bronze-300 hover:text-bronze-200 underline">
+            privacy@anamatakahui.co.nz
+          </a>
+          .
         </p>
       </div>
     </div>

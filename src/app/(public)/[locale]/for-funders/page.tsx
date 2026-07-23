@@ -1,26 +1,29 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, FileCheck2, Shield, GraduationCap, Building2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export const metadata = {
-  title: "For funders",
-  description:
-    "For people and organisations deciding whether to fund Anamata Kāhui. Live evidence, active funding rounds, and the cultural-governance posture that de-risks investment.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "forFunders" });
+  return {
+    title: t("title"),
+    description: t("lede").slice(0, 160),
+  };
+}
 
-export default function ForFundersPage() {
+export default async function ForFundersPage() {
+  const t = await getTranslations("forFunders");
   return (
     <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
       <Badge variant="outline" className="mb-4">For funders · decision support</Badge>
       <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
-        For funders
+        {t("title")}
       </h1>
       <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-        For people and organisations deciding whether to fund Anamata
-        Kāhui. Every claim below links to a live evidence page — no PDFs
-        to request, no follow-ups needed.
+        {t("lede")}
       </p>
 
       <section className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

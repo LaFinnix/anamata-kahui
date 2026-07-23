@@ -1,31 +1,63 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-export const metadata = {
-  title: "Privacy notice",
-  description:
-    "How Anamata Kāhui collects, holds, uses, and discloses personal information under the NZ Privacy Act 2020, with Te Tiriti o Waitangi and Te Mana Raraunga commitments.",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "legal.privacyNotice" });
+  return {
+    title: t("title"),
+    description: t("summary").slice(0, 160),
+  };
+}
 
-export default function PrivacyNoticePage() {
+export default async function PrivacyNoticePage() {
+  const t = await getTranslations("legal.privacyNotice");
   const lastUpdated = "2026-07-22";
   const effectiveDate = "2026-07-22";
   const nextReview = "2027-07-22";
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
-      <Badge variant="outline" className="mb-4">Legal · Privacy</Badge>
+      <Badge variant="outline" className="mb-4">{t("badge")}</Badge>
 
       <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
-        Privacy notice
+        {t("title")}
       </h1>
 
       <dl className="mt-6 grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
-        <Term label="Effective date" value={effectiveDate} />
-        <Term label="Last updated" value={lastUpdated} />
-        <Term label="Next review" value={nextReview} />
+        <Term label={t("effectiveDate")} value={effectiveDate} />
+        <Term label={t("lastUpdated")} value={lastUpdated} />
+        <Term label={t("nextReview")} value={nextReview} />
       </dl>
+
+      {/* Te reo Māori summary — gives te reo speakers a high-level summary
+          while the long-form legal prose stays in English. */}
+      <aside
+        aria-label="Whakarāpopototanga reo Māori"
+        className="mt-8 rounded-md border border-pounamu-500/30 bg-pounamu-500/5 p-5 text-sm"
+      >
+        <p className="font-medium text-pounamu-200">Whakarāpopototanga reo Māori</p>
+        <p className="mt-2 text-muted-foreground">{t("summary")}</p>
+      </aside>
+
+      <nav
+        aria-label={t("tableOfContents")}
+        className="mt-10 rounded-md border border-border p-4 text-sm"
+      >
+        <p className="font-medium uppercase tracking-wider text-muted-foreground">
+          {t("tableOfContents")}
+        </p>
+        <ul className="mt-2 space-y-1">
+          <li><a href="#personal" className="text-bronze-300 hover:text-bronze-200">{t("tocPersonal")}</a></li>
+          <li><a href="#why" className="text-bronze-300 hover:text-bronze-200">{t("tocWhy")}</a></li>
+          <li><a href="#how" className="text-bronze-300 hover:text-bronze-200">{t("tocHow")}</a></li>
+          <li><a href="#share" className="text-bronze-300 hover:text-bronze-200">{t("tocShare")}</a></li>
+          <li><a href="#rights" className="text-bronze-300 hover:text-bronze-200">{t("tocRights")}</a></li>
+          <li><a href="#complaints" className="text-bronze-300 hover:text-bronze-200">{t("tocComplaints")}</a></li>
+        </ul>
+      </nav>
 
       <div className="prose prose-invert mt-10 max-w-none">
         <p>

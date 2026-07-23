@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
@@ -22,54 +23,44 @@ import { X } from "lucide-react";
  *
  * Privacy-conscious: no third-party scripts loaded, no fingerprinting,
  * no network requests on consent. Purely client-side state.
+ *
+ * Translated via next-intl — all strings come from `cookieConsent.*`.
  */
 export function CookieConsentBanner() {
+  const t = useTranslations("cookieConsent");
   const [visible, setVisible] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // Read cookie. If present, banner stays hidden.
-    const has = document.cookie
-      .split("; ")
-      .some((row) => row.startsWith("kahui_cookie_consent="));
-    if (!has) setVisible(true);
+    if (typeof document === "undefined") return;
+    const hasConsent = document.cookie.includes("kahui_cookie_consent=");
+    if (!hasConsent) setVisible(true);
   }, []);
 
   function setConsent(value: "accepted" | "essential_only") {
-    // 1-year cookie. SameSite=Lax, no third-party exposure.
-    document.cookie = `kahui_cookie_consent=${value}; path=/; max-age=31536000; SameSite=Lax`;
+    document.cookie = `kahui_cookie_consent=${value}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
     setVisible(false);
-    setDismissed(true);
   }
 
-  if (!visible || dismissed) return null;
+  if (!visible) return null;
 
   return (
     <div
       role="dialog"
       aria-live="polite"
-      aria-label="Cookie consent"
+      aria-label={t("title")}
       className="fixed inset-x-0 bottom-0 z-50 border-t border-bronze-500/30 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div className="flex-1">
           <p className="text-sm">
-            <strong>He whakamōhio cookie.</strong> We use strictly
-            necessary cookies (auth, language preference). Optional
-            cookies are not set today. Read the{" "}
+            <strong>{t("title")}.</strong> {t("body")}{" "}
             <Link
               href="/legal/cookie-policy"
               className="text-bronze-300 hover:text-bronze-200 underline"
             >
-              cookie policy
-            </Link>{" "}
-            or customise at{" "}
-            <Link
-              href="/privacy-controls"
-              className="text-bronze-300 hover:text-bronze-200 underline"
-            >
-              /privacy-controls
-            </Link>.
+              {t("viewPolicy")}
+            </Link>
+            .
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -79,22 +70,22 @@ export function CookieConsentBanner() {
             asChild
             className="text-muted-foreground"
           >
-            <Link href="/privacy-controls">Customise</Link>
+            <Link href="/privacy-controls">{t("customise")}</Link>
           </Button>
           <Button
             variant="secondary"
             size="sm"
             onClick={() => setConsent("essential_only")}
           >
-            Reject non-essential
+            {t("reject")}
           </Button>
           <Button size="sm" onClick={() => setConsent("accepted")}>
-            Accept all
+            {t("accept")}
           </Button>
           <button
             type="button"
             onClick={() => setVisible(false)}
-            aria-label="Dismiss cookie banner"
+            aria-label={t("title")}
             className="ml-1 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <X className="h-4 w-4" />

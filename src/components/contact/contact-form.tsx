@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { contactAction } from "@/lib/actions/contact";
 import { Button } from "@/components/ui/button";
@@ -11,15 +12,16 @@ import { Label } from "@/components/ui/label";
 
 export function ContactForm() {
   const [state, formAction, isPending] = useActionState(contactAction, null);
+  const t = useTranslations("contact");
 
   return (
     <form className="space-y-4" action={formAction}>
       <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
+        <Label htmlFor="name">{t("name")}</Label>
         <Input id="name" name="name" required />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t("email")}</Label>
         <Input id="email" name="email" type="email" required />
       </div>
       <div className="space-y-2">

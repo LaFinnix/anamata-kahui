@@ -33,10 +33,22 @@
       "name": "Anamata Records",
       "tagline": "He peka puoro — tomokanga kaiwaiata, raupapatanga tukunga, putunga STEM, me ngā tatauranga tihi me te moni whakahoki.",
       "highlights": {
-        "artistPortal":   { "title": "Tomokanga kaiwaiata",  "body": "Ka whakahaere ia kaiwaiata i tōna rōpere, ngā tukunga, me ngā moni whakahoki i tētahi wāhi kotahi." },
-        "releasePipeline":{ "title": "Raupapatanga tukunga","body": "Ka whai mai i tētahi tukunga mai i te hukihuki tae atu ki te tukunga kua whakaritea, ki ngā tatauranga muri-tukunga." },
-        "stemVault":      { "title": "Putunga STEM",          "body": "He putunga haumaru, he putunga putanga mō ngā mastatī, ngā STEM, me ngā toi tautoko." },
-        "streamRoyalty":  { "title": "Tihi me te Moni",       "body": "Ngā tatauranga mahi mai i Spotify, Apple Music, me ngā kaiwhakaputa kiritaki." }
+        "artistPortal": {
+          "title": "Tomokanga kaiwaiata",
+          "body": "Ka whakahaere ia kaiwaiata i tōna rōpere, ngā tukunga, me ngā moni whakahoki i tētahi wāhi kotahi."
+        },
+        "releasePipeline": {
+          "title": "Raupapatanga tukunga",
+          "body": "Ka whai mai i tētahi tukunga mai i te hukihuki tae atu ki te tukunga kua whakaritea, ki ngā tatauranga muri-tukunga."
+        },
+        "stemVault": {
+          "title": "Putunga STEM",
+          "body": "He putunga haumaru, he putunga putanga mō ngā mastatī, ngā STEM, me ngā toi tautoko."
+        },
+        "streamRoyalty": {
+          "title": "Tihi me te Moni",
+          "body": "Ngā tatauranga mahi mai i Spotify, Apple Music, me ngā kaiwhakaputa kiritaki."
+        }
       },
       "cta": "Huaki i te papamahi Records"
     },
@@ -44,10 +56,22 @@
       "name": "Rangatiratanga Reo me te Rangahau",
       "tagline": "He pouaka mātauranga, he puna kōnae, he kaupapa ā-whenua mō te whakapūmau i te reo.",
       "highlights": {
-        "documentVault":  { "title": "Pouaka kōnae",       "body": "He puna kōnae rapu mō ngā pūtake taketake, ngā tuhituhi, me ngā tuhipoka ā-whenua." },
-        "fieldProjects":  { "title": "Kaupapa ā-whenua",   "body": "He kaiwhakahaere ora mō ngā mahi ā-whenua e haere ana, me ngā raraunga kaitiaki." },
-        "languageTools":  { "title": "Taputapu reo",        "body": "He taputapu kupu Māori — oropuare, auau, me ngā tohu reo-ā-iwi." },
-        "publications":   { "title": "Ngā whakaputa",       "body": "Ngā tuhinga kua arotakea me ngā tuhinga hapori, me te whakapiri DOI." }
+        "documentVault": {
+          "title": "Pouaka kōnae",
+          "body": "He puna kōnae rapu mō ngā pūtake taketake, ngā tuhituhi, me ngā tuhipoka ā-whenua."
+        },
+        "fieldProjects": {
+          "title": "Kaupapa ā-whenua",
+          "body": "He kaiwhakahaere ora mō ngā mahi ā-whenua e haere ana, me ngā raraunga kaitiaki."
+        },
+        "languageTools": {
+          "title": "Taputapu reo",
+          "body": "He taputapu kupu Māori — oropuare, auau, me ngā tohu reo-ā-iwi."
+        },
+        "publications": {
+          "title": "Ngā whakaputa",
+          "body": "Ngā tuhinga kua arotakea me ngā tuhinga hapori, me te whakapiri DOI."
+        }
       },
       "cta": "Huaki i te tomokanga Rangahau"
     },
@@ -55,10 +79,22 @@
       "name": "Toi Auaha",
       "tagline": "He toi ā-kanohi, he whakaaturanga pāpāho matihiko, me ngā kōpaki hoahoa ahurea.",
       "highlights": {
-        "galleries":    { "title": "Ngā whare toi",     "body": "He kohinga kua kōhukihia o ngā mahi ā-kanohi — taumira teitei, he kōrero tautoko hoki." },
-        "digitalMedia": { "title": "Pāpāho matihiko",   "body": "Ngā mahi auaha, nekeneke, tauwhitiwhiti, e tukunga ana i te taha o te tihi Whatunga." },
-        "portfolios":   { "title": "Ngā kōpaki",        "body": "He kōpaki mō ia kaitoi, me te whakapapa me ngā hītori whakaaturanga." },
-        "commissions":  { "title": "Ngā tono",          "body": "He kaiwhakawhiwhi tono, kaiwhakahaere kaupapa hoki mō ngā mahi i tonoa." }
+        "galleries": {
+          "title": "Ngā whare toi",
+          "body": "He kohinga kua kōhukihia o ngā mahi ā-kanohi — taumira teitei, he kōrero tautoko hoki."
+        },
+        "digitalMedia": {
+          "title": "Pāpāho matihiko",
+          "body": "Ngā mahi auaha, nekeneke, tauwhitiwhiti, e tukunga ana i te taha o te tihi Whatunga."
+        },
+        "portfolios": {
+          "title": "Ngā kōpaki",
+          "body": "He kōpaki mō ia kaitoi, me te whakapapa me ngā hītori whakaaturanga."
+        },
+        "commissions": {
+          "title": "Ngā tono",
+          "body": "He kaiwhakawhiwhi tono, kaiwhakahaere kaupapa hoki mō ngā mahi i tonoa."
+        }
       },
       "cta": "Tirohia te whare toi"
     },
@@ -66,10 +102,22 @@
       "name": "Hangarau me te Whakawhanake",
       "tagline": "He kaupapa pūmanawa, he taputapu kiritaki, me ngā mahi aunoa ā-roto mō te Kāhui.",
       "highlights": {
-        "clientTools": { "title": "Taputapu kiritaki", "body": "Ngā papamahi me ngā taputapu i hanga mō ngā hoa mahi o te Kāhui." },
-        "openSource":  { "title": "Pūmanawa tuwhera",  "body": "Ngā wharepukapuka me ngā tīmatanga e tukunga ana i raro i ngā raihana atawhai." },
-        "automation":  { "title": "Mahi aunoa",        "body": "Ngā tuhinga ā-roto me ngā raina mō ngā mahi kōpaki, tukunga, me ngā tatauranga." },
-        "apiConsole":  { "title": "Tauranga API",      "body": "He huarahi whakamana mō te whakahaere i ngā ki API me ngā huna tūhono." }
+        "clientTools": {
+          "title": "Taputapu kiritaki",
+          "body": "Ngā papamahi me ngā taputapu i hanga mō ngā hoa mahi o te Kāhui."
+        },
+        "openSource": {
+          "title": "Pūmanawa tuwhera",
+          "body": "Ngā wharepukapuka me ngā tīmatanga e tukunga ana i raro i ngā raihana atawhai."
+        },
+        "automation": {
+          "title": "Mahi aunoa",
+          "body": "Ngā tuhinga ā-roto me ngā raina mō ngā mahi kōpaki, tukunga, me ngā tatauranga."
+        },
+        "apiConsole": {
+          "title": "Tauranga API",
+          "body": "He huarahi whakamana mō te whakahaere i ngā ki API me ngā huna tūhono."
+        }
       },
       "cta": "Huaki i te tauranga Dev"
     }
@@ -81,9 +129,18 @@
     "title": "Mō Anamata Kāhui",
     "lede": "Ko Anamata Kāhui te tātai matihiko e kawe ana i a Anamata Records, te Rangatiratanga Reo me te Rangahau, te Toi Auaha, me te Hangarau i raro i tētahi tuanui kotahi. He peka tō tēnā, ā, he papamahi, he taputapu anō — engari kotahi tonu te pūnaha takiuru, kotahi tonu te tauanga raraunga, kotahi tonu te tūāpapa ahurea.",
     "pillars": {
-      "tino":      { "title": "Tino rangatiratanga","body": "He tino rangatiratanga i ia taumata — ka mahi te papaho mō ngā tāngata e hanga ana, kaua mōna anō." },
-      "kaitiaki":  { "title": "Kaitiakitanga",     "body": "Ka whakahaerehia ngā raraunga ahurea e ngā hapori nō reira. Ko te RLS, ngā raraunga whakaaetanga, me ngā huarahi tātari ka whakarae." },
-      "whanaunga": { "title": "Whanaungatanga",    "body": "Ka tiria e ngā peka e whā tētahi tuakiri, tētahi pūnaha takiuru, me tētahi tikanga whakahaere. Kāore rātou e tū wehe." }
+      "tino": {
+        "title": "Tino rangatiratanga",
+        "body": "He tino rangatiratanga i ia taumata — ka mahi te papaho mō ngā tāngata e hanga ana, kaua mōna anō."
+      },
+      "kaitiaki": {
+        "title": "Kaitiakitanga",
+        "body": "Ka whakahaerehia ngā raraunga ahurea e ngā hapori nō reira. Ko te RLS, ngā raraunga whakaaetanga, me ngā huarahi tātari ka whakarae."
+      },
+      "whanaunga": {
+        "title": "Whanaungatanga",
+        "body": "Ka tiria e ngā peka e whā tētahi tuakiri, tētahi pūnaha takiuru, me tētahi tikanga whakahaere. Kāore rātou e tū wehe."
+      }
     },
     "getInvolvedTitle": "Hono mai",
     "getInvolvedLede": "Ahakoa he kaiwaiata, he kaimātai, he kaihoahoa, he kaipūmanawa rānei — he wāhi tōu i te Kāhui."
@@ -106,13 +163,142 @@
     "copyright": "Ngā motika katoa e rāhiritia ana."
   },
   "auth": {
-    "login": { "title": "Takiuru", "lede": "Uru ki te tomokanga kaiwaiata, ngā papamahi, me te tauranga Kāhui." },
-    "register": { "title": "Hono mai ki te Kāhui", "lede": "Waihangahia tētahi pūkete kia uru ai ki te tomokanga kaiwaiata me ngā papamahi." },
-    "reset": { "title": "Tautuhi anō i te kupuhipa", "lede": "Ka tukuna mātou i tētahi hononga whakaora ki tō īmēra.", "submit": "Tukuna te hononga whakaora" },
+    "login": {
+      "title": "Takiuru",
+      "lede": "Uru ki te tomokanga kaiwaiata, ngā papamahi, me te tauranga Kāhui."
+    },
+    "register": {
+      "title": "Hono mai ki te Kāhui",
+      "lede": "Waihangahia tētahi pūkete kia uru ai ki te tomokanga kaiwaiata me ngā papamahi."
+    },
+    "reset": {
+      "title": "Tautuhi anō i te kupuhipa",
+      "lede": "Ka tukuna mātou i tētahi hononga whakaora ki tō īmēra.",
+      "submit": "Tukuna te hononga whakaora"
+    },
     "forgot": "Kua wareware?",
     "signInCta": "Takiuru",
     "newHere": "Hou ki te Kāhui?",
     "haveAccount": "Kua whai pūkete kē?",
     "createAccountCta": "Waihangahia tētahi pūkete"
+  },
+  "cookieConsent": {
+    "title": "Pihikete i tēnei pae",
+    "body": "Ka whakamahi mātou i ngā pihikete tino hiahiatia kia pai ai te mahi a te pae, me ngā pihikete tātaritanga whiriwhiri hei mōhio ki te āhua o tōna whakamahi. Ka taea e koe te whakaae ki ngā mea katoa, te whakakore i ngā mea kāore e tino hiahiatia, te whakarite rānei.",
+    "accept": "Whakaae katoa",
+    "reject": "Whakakore i ngā mea kāore e tino hiahiatia",
+    "customise": "Whakarite",
+    "save": "Tiaki ngā kōwhiringa",
+    "categories": {
+      "necessary": {
+        "label": "Tino hiahiatia",
+        "description": "E hiahiatia ana kia pai ai te mahi a te pae. Kare e taea te weto."
+      },
+      "analytics": {
+        "label": "Tātaritanga",
+        "description": "Āwhina i a mātou kia mōhio ki te āhua o te whakamahi i te pae. Kua weto i te tīmatanga."
+      },
+      "preferences": {
+        "label": "Ngā kōwhiringa",
+        "description": "Maumahara ki tō reo me ngā tautuhinga e wātea ana."
+      }
+    },
+    "viewPolicy": "Tirohia te kaupapa here pihikete"
+  },
+  "legal": {
+    "privacyNotice": {
+      "badge": "Ture · Tūmataitinga",
+      "title": "Whakaatu tūmataitinga",
+      "summary": "Ka whakamārama tēnei whakaatu i te āhua o tō Anamata Kāhui kohikohi, pupuri, whakamahi, me te whakapuaki i ō mōhiohio whaiaro i raro i te Ture Tūmataitinga 2020. Ka whakanuihia hoki e mātou ngā mātāpono CARE o Te Mana Raraunga Māori Data Sovereignty. Kei raro te tuhinga katoa i te reo Pākehā; ka whai mai he whakarāpopototanga reo Māori i muri i te ripanga ihirangi.",
+      "effectiveDate": "Rā tiimata",
+      "lastUpdated": "Whakahoutanga whakamutunga",
+      "nextReview": "Arotake whai ake",
+      "tableOfContents": "Ngā Ihirangi",
+      "tocPersonal": "Tā mātou e kohikohi",
+      "tocWhy": "He aha i kohikohi ai mātou",
+      "tocHow": "Me pēhea tā mātou pupuri, tiaki",
+      "tocShare": "Tōna wā tuari",
+      "tocRights": "Ō mōtika",
+      "tocComplaints": "Ngā amuamu",
+      "contact": "Whakapā mai mō te tūmataitinga"
+    },
+    "cookiePolicy": {
+      "badge": "Ture · Ngā Pihikete",
+      "title": "Kaupapa here pihikete",
+      "summary": "Ka whakarārangi tēnei kaupapa here i ia pihikete ka tautuhia e anamatakahui.co.nz, tāna mahi, te roa o tōna oranga, me te āhua e taea ai e koe te whakahaere. Kei raro te kaupapa here katoa i te reo Pākehā; ka whakamārama te whakarāpopototanga reo Māori i ngā kaupapa matua.",
+      "lastUpdated": "Whakahoutanga whakamutunga",
+      "contact": "Whakapā mai mō ngā pihikete"
+    },
+    "terms": {
+      "badge": "Ture · Ngā Here",
+      "title": "Ngā here whakamahi",
+      "summary": "Ka whakahaeretia e ēnei here te whakamahi i anamatakahui.co.nz me ngā peka e whā. Mā te whakamahi i te pae ka whakaae koe ki ēnei here. Kei raro ngā here katoa i te reo Pākehā; ka whakamārama te whakarāpopototanga reo Māori i ngā kaupapa matua.",
+      "lastUpdated": "Whakahoutanga whakamutunga",
+      "contact": "Whakapā mai mō ēnei here"
+    }
+  },
+  "privacyControls": {
+    "anonymous": {
+      "badge": "Tūmataitinga · Mana whaiaro",
+      "title": "Ngā mana tūmataitinga",
+      "lede": "Takiuru kia kite i ō raraunga, tono kia tangohia, tono kia mukua, panoni rānei i tō whakaaturanga whaiaro i te kōpaki.",
+      "signInCta": "Takiuru ki te whakahaere tūmataitinga"
+    },
+    "signedIn": {
+      "title": "Ō mana tūmataitinga",
+      "dataExport": {
+        "title": "Tangohia ō raraunga",
+        "description": "Tikiake he kape o ō raraunga pūkete — kōtaha, whakaaturanga whaiaro i te kōpaki, ngā pātai whakapā, me ngā tāurunga rangapū whakaae.",
+        "button": "Tono kia tangohia ngā raraunga"
+      },
+      "dataDeletion": {
+        "title": "Tono kia mukua te pūkete",
+        "description": "Tāpaehia he tono kia mukua tō pūkete. Ka whakaū mātou mā īmēra i mua i te mukunga.",
+        "button": "Tono kia mukua"
+      },
+      "directory": {
+        "title": "Whakaaturanga i te kōpaki whaiaro",
+        "description": "Ka kitea pea tō kōtaha i te kōpaki whaiaro o te Kāhui (mō ngā kaiwaiata, kaiwhakangungu, kaihoahoa). Tahuri whakaweto kia tangohia koe.",
+        "optedIn": "E whakaaturia ana i te kōpaki whaiaro",
+        "optedOut": "Kāore i te whakaaturia"
+      },
+      "cookies": {
+        "title": "Ngā kōwhiringa pihikete",
+        "description": "Whakahoutia tō whakaae mō te tātaritanga me ngā pihikete kōwhiringa.",
+        "manage": "Whakahaere pihikete"
+      }
+    }
+  },
+  "errors": {
+    "notFound": {
+      "title": "Kāore i kitea te whārangi",
+      "description": "Kāore i te whārangi i rapu ai koe, kua nekehia rānei.",
+      "home": "Hoki ki te kāinga"
+    },
+    "generic": {
+      "title": "Hē tētahi mea",
+      "description": "I pā mai tētahi hē ohorere. Kua whakamōhio mātou. Tēnā whakamātau anō.",
+      "retry": "Whakamātau anō",
+      "home": "Hoki ki te kāinga"
+    }
+  },
+  "research": {
+    "title": "Rangahau me te Reo",
+    "lede": "Rangahau reo Māori, kaupapa ā-papa, me te taha whakawhiti kōrero e wātea ana ki te iwi whānui."
+  },
+  "forFunders": {
+    "title": "Mā ngā Kaitautoko",
+    "lede": "Mā ngā tāngata, ngā rōpū hoki e whakatau ana me whakataetae i te Anamata Kāhui. He taunakitanga ora, he hurihuri tahua e mahi ana, me te tūmanako ahurea-kaitiakitanga e whakaiti i te tūraru."
+  },
+  "waiata": {
+    "title": "Anamata Records",
+    "lede": "Te peka puoro — ngā waiata kua tukua, ngā kaiwaiata, te pūranga tuaka, me ngā tātaritanga."
+  },
+  "common": {
+    "loading": "E uta ana…",
+    "noResults": "Kāore he whakataunga.",
+    "lastUpdated": "Whakahoutanga whakamutunga",
+    "viewAll": "Tirohia katoa",
+    "backTo": "Hoki ki"
   }
 }

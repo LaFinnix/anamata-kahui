@@ -1,17 +1,27 @@
 import Link from "next/link";
 import { Music, ArrowRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 import { createAdminClient } from "@/lib/supabase/clients";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export const revalidate = 300;
-export const metadata = { title: "Waiata" };
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "waiata" });
+  return {
+    title: t("title"),
+    description: t("lede").slice(0, 160),
+  };
+}
 
 export default async function WaiataIndexPage() {
   // Service-role client — same RLS-safe read (released releases are public
   // anyway) but doesn't depend on request-time cookies.
   const admin = createAdminClient();
+  const t = await getTranslations("waiata");
   const { data: releases } = await admin
     .from("releases")
     .select("title, metadata, iwi_consent_id, status")
@@ -23,11 +33,10 @@ export default async function WaiataIndexPage() {
       <div className="mb-12">
         <Badge variant="outline" className="mb-4">Released waiata</Badge>
         <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
-          Waiata
+          {t("title")}
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Every waiata in the Anamata catalog, with full cultural provenance
-          visible on each page. Currently released: {releases?.length ?? 0}.
+          {t("lede")}
         </p>
       </div>
 
