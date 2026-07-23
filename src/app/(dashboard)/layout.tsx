@@ -118,8 +118,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/admin", label: "Overview", icon: LayoutDashboard },
       { href: "/admin/iwi-gate", label: "Iwi gates", icon: GitBranch },
-      { href: "/admin/branches", label: "Branches", icon: Shield },
-      { href: "/admin/members", label: "Members", icon: Users },
+      { href: "/admin/members", label: "Members & branches", icon: Users },
       { href: "/admin/kaitiaki", label: "Cultural review", icon: ShieldCheck },
       { href: "/admin/hub-sync", label: "Hub sync", icon: BookOpen },
     ],
