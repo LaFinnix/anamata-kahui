@@ -42,37 +42,37 @@ export function SiteHeader() {
         <nav className="hidden items-center gap-1 md:flex">
           <Link
             href="/about"
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
+            className="min-h-[44px] rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
           >
             {t("about")}
           </Link>
           <Link
             href="/contact"
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
+            className="min-h-[44px] rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
           >
             {t("contact")}
           </Link>
           <Link
             href="/research"
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
+            className="min-h-[44px] rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
           >
             {t("research")}
           </Link>
           <Link
             href="/waiata"
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
+            className="min-h-[44px] rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
           >
             {t("records")}
           </Link>
           <Link
             href="/reads"
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
+            className="min-h-[44px] rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
           >
             {t("reads")}
           </Link>
           <Link
             href="/news"
-            className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
+            className="min-h-[44px] rounded-md px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted"
           >
             {t("news")}
           </Link>
@@ -100,29 +100,29 @@ export function SiteHeader() {
       {/* Mobile menu */}
       {open && (
         <nav className="space-y-1 border-t border-border px-4 py-3 md:hidden">
-          <Link href="/about" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
+          <Link href="/about" className="block min-h-[44px] rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
             {t("about")}
           </Link>
-          <Link href="/contact" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
+          <Link href="/contact" className="block min-h-[44px] rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
             {t("contact")}
           </Link>
-          <Link href="/research" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
+          <Link href="/research" className="block min-h-[44px] rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
             {t("research")}
           </Link>
-          <Link href="/waiata" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
+          <Link href="/waiata" className="block min-h-[44px] rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
             {t("records")}
           </Link>
-          <Link href="/reads" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
+          <Link href="/reads" className="block min-h-[44px] rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
             {t("reads")}
           </Link>
-          <Link href="/news" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
+          <Link href="/news" className="block min-h-[44px] rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
             {t("news")}
           </Link>
           <div className="pt-2">
-            <Link href="/login" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
+            <Link href="/login" className="block min-h-[44px] rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
               {t("signIn")}
             </Link>
-            <Link href="/register" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
+            <Link href="/register" className="block min-h-[44px] rounded-md px-3 py-2 text-sm font-medium hover:bg-muted">
               {t("join")}
             </Link>
           </div>

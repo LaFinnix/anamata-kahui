@@ -62,33 +62,33 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-hero-glow" aria-hidden />
-        <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
           <Badge variant="outline" className="mb-6">
             {t("eyebrow")}
           </Badge>
-          <h1 className="max-w-3xl text-balance text-5xl font-display font-semibold tracking-tight sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-3xl text-balance text-4xl font-display font-semibold tracking-tight sm:text-6xl lg:text-7xl">
             {t.rich("heroLine", {
               br: () => <br />,
               accent: (chunks) => <span className="text-bronze-300">{chunks}</span>,
             })}
           </h1>
-          <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
+          <p className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-xl">
             {t("lede")}
           </p>
 
-          <dl className="mt-10 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+          <dl className="mt-10 grid max-w-2xl grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 sm:gap-x-8">
             <Stat label={t("stats.released")} value={released.count ?? 0} />
             <Stat label={t("stats.iwiGates")} value={iwiGates.count ?? 0} />
             <Stat label={t("stats.liveBranches")} value={BRANCHES.length} />
           </dl>
 
-          <div className="flex flex-col items-start gap-4 sm:flex-row">
-            <Button asChild size="lg">
+          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-start sm:gap-4">
+            <Button asChild size="lg" className="min-h-[44px]">
               <Link href="/register">
                 {t("joinCta")} <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="secondary" size="lg">
+            <Button asChild variant="secondary" size="lg" className="min-h-[44px]">
               <Link href="/records">{t("exploreCta")}</Link>
             </Button>
           </div>

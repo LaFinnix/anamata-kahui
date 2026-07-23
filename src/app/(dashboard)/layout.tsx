@@ -31,6 +31,7 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import type { UserRole } from "@/lib/types";
 import { getActiveContext, BRANCH_LABELS, BRANCH_ROLE_LABELS, type BranchSlug, type BranchRole } from "@/lib/auth/active-context";
 import { BranchSwitcher } from "@/components/kahui/branch-switcher";
+import { DashboardMobileNav } from "@/components/admin/dashboard-mobile-nav";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -292,13 +293,16 @@ export default async function DashboardLayout({
 
       {/* Main */}
       <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur md:hidden">
-          <Link href="/admin" className="font-display text-lg font-semibold">
-            Anamata Kāhui
-          </Link>
+        <header className="flex h-16 items-center justify-between gap-2 border-b border-border bg-background/80 px-4 backdrop-blur md:hidden">
+          <div className="flex items-center gap-2">
+            <DashboardMobileNav groups={visibleGroups} />
+            <Link href="/admin" className="font-display text-lg font-semibold">
+              Anamata Kāhui
+            </Link>
+          </div>
           <LogoutButton />
         </header>
-        <main className="flex-1 overflow-auto p-6 sm:p-8">{children}</main>
+        <main className="flex-1 overflow-auto p-4 sm:p-6 md:p-8">{children}</main>
       </div>
     </div>
   );

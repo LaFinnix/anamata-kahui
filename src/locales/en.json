@@ -31,7 +31,15 @@
     "closerCtaPrimary": "Get in touch",
     "nzsISlot": "NZSL interpretation — coming soon",
     "visitBranch": "Visit branch",
-    "heroLine": "Four branches.<br/>One <accent>kāhui</accent>."
+    "heroLine": "Four branches.<br/>One <accent>kāhui</accent>.",
+    "stats": {
+      "released": "Released waiata",
+      "iwiGates": "Iwi consent gates",
+      "liveBranches": "Live branches",
+      "governance": "Governance events"
+    },
+    "joinCta": "Join the kāhui",
+    "exploreCta": "Explore the platform"
   },
   "branch": {
     "records": {

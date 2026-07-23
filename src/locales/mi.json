@@ -31,7 +31,15 @@
     "closerCtaPrimary": "Whakapā mai",
     "nzsISlot": "Whakamāori NZSL — hei ā muri ake",
     "visitBranch": "Tirohia te peka",
-    "heroLine": "E wha ngā peka.<br/>Kotahi te <accent>kāhui</accent>."
+    "heroLine": "E wha ngā peka.<br/>Kotahi te <accent>kāhui</accent>.",
+    "stats": {
+      "released": "Waiata kua tukua",
+      "iwiGates": "Ngā kati iwi",
+      "liveBranches": "Ngā peka ora",
+      "governance": "Ngā mahi kāwanatanga"
+    },
+    "joinCta": "Hono mai ki te kāhui",
+    "exploreCta": "Tūhura i te papa"
   },
   "branch": {
     "records": {
