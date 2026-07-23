@@ -37,7 +37,13 @@ export function CookieConsentBanner() {
   }, []);
 
   function setConsent(value: "accepted" | "essential_only") {
-    document.cookie = `kahui_cookie_consent=${value}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+    // Only set Secure in production (HTTPS). localhost over HTTP must
+    // remain usable in dev.
+    const secure =
+      typeof location !== "undefined" && location.protocol === "https:"
+        ? "Secure; "
+        : "";
+    document.cookie = `kahui_cookie_consent=${value}; path=/; max-age=${60 * 60 * 24 * 365}; ${secure}SameSite=Lax`;
     setVisible(false);
   }
 

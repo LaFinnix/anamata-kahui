@@ -24,11 +24,40 @@ export const metadata = {
 export default async function StemBrowserPage() {
   const admin = createAdminClient();
 
+  // Fetch releases + stems. Use the storage_path (not file_name) so we
+  // can construct a signed URL. The stems bucket is private — public
+  // URLs would 400; signed URLs are time-limited and work.
   const { data: releases } = await admin
     .from("releases")
-    .select("id, title, upc, isrc, stems(id, file_name, mime_type, size_bytes, bucket, created_at)")
+    .select("id, title, upc, isrc, stems(id, file_name, mime_type, size_bytes, bucket, storage_path, created_at)")
     .eq("status", "released")
     .order("title");
+
+  // Build a Map<releaseId+storage_path, signedUrl> in parallel.
+  const signedUrlByStem = new Map<string, string>();
+  if (releases) {
+    const signTasks: Array<Promise<void>> = [];
+    for (const r of releases) {
+      const stems = (r.stems as Array<{
+        id: string;
+        bucket: string | null;
+        storage_path: string | null;
+      }> | null) ?? [];
+      for (const stem of stems) {
+        if (!stem.bucket || !stem.storage_path) continue;
+        const key = `${stem.id}`;
+        signTasks.push(
+          admin.storage
+            .from(stem.bucket)
+            .createSignedUrl(stem.storage_path, 60 * 60) // 1h
+            .then(({ data }) => {
+              if (data?.signedUrl) signedUrlByStem.set(key, data.signedUrl);
+            }),
+        );
+      }
+    }
+    await Promise.allSettled(signTasks);
+  }
 
   const totalStems = (releases ?? []).reduce(
     (sum, r) => sum + ((r.stems as unknown[]) ?? []).length,
@@ -126,10 +155,9 @@ export default async function StemBrowserPage() {
                 ) : (
                   <ul className="space-y-2">
                     {stems.map((stem) => {
-                      const url =
-                        stem.bucket && stem.file_name
-                          ? `https://fydhhyakfkceupibqnps.supabase.co/storage/v1/object/public/${stem.bucket}/${stem.file_name}`
-                          : null;
+                      // Use the pre-signed URL when available; the stems
+                      // bucket is private so a public URL would 400.
+                      const url = signedUrlByStem.get(stem.id) ?? null;
                       return (
                         <li
                           key={stem.id}
