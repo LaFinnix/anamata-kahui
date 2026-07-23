@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ActiveContextBanner } from "@/components/kahui/active-context-banner";
 import { CreateReadForm } from "@/components/admin/create-read-form";
 import { ReadAdminRow } from "@/components/admin/read-admin-row";
-import { QuickStartForm } from "@/components/admin/quick-start-form";
+import { ResearchAgentForm } from "@/components/admin/research-agent-form";
 
 export const metadata = {
   title: "Reads · Admin",
@@ -94,7 +94,7 @@ export default async function ReadsAdminPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <QuickStartForm />
+          <ResearchAgentForm />
         </CardContent>
       </Card>
 

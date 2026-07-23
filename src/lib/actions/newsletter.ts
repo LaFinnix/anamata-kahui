@@ -131,12 +131,13 @@ export async function subscribeAction(
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://anamatakahui.co.nz";
   const confirmUrl = `${baseUrl}/${locale}/newsletter/confirm?token=${encodeURIComponent(token)}`;
 
-  const { sent, error: sendErr } = await sendEmail({
+  const emailResult = await sendEmail({
     to: email,
     subject: "Confirm your subscription to Anamata Kāhui",
     html: confirmationEmailHtml(confirmUrl, locale),
     text: confirmationEmailText(confirmUrl, locale),
   });
+  const { sent, error: sendErr, id: resendId } = emailResult;
 
   // Log the send attempt (admin client to bypass newsletter_sent RLS)
   const adminClient = createAdminClient();
@@ -152,7 +153,7 @@ export async function subscribeAction(
       subject: "Confirm your subscription to Anamata Kāhui",
       body_preview: `Confirm at ${confirmUrl}`,
       status: sent ? "sent" : "failed",
-      resend_id: sent?.id ?? null,
+      resend_id: resendId,
       error: sendErr ?? null,
       sent_at: sent ? new Date().toISOString() : null,
     });
