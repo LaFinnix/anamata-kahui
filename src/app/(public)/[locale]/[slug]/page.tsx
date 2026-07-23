@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,6 +9,8 @@ import { BRANCHES, BRANCH_BY_SLUG } from "@/lib/branches";
 import type { BranchSlug } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://anamatakahui.co.nz";
 
 const BRANCH_ICONS: Record<BranchSlug, LucideIcon> = {
   records: Music,
@@ -68,6 +71,44 @@ const BRANCH_LANDING: Record<BranchSlug, BranchLandingConfig> = {
     cta: { label: "Open the Dev console", href: "/dev/dashboard" },
   },
 };
+
+/**
+ * Per-branch metadata — title, description, OG tags.
+ *
+ * Static (no DB query needed) — branches are config, not data.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string; locale: string }>;
+}): Promise<Metadata> {
+  const { slug, locale } = await params;
+  const branch = BRANCH_BY_SLUG[slug as BranchSlug];
+  if (!branch) {
+    return { title: "Branch not found", robots: { index: false, follow: false } };
+  }
+  const landing = BRANCH_LANDING[slug as BranchSlug];
+  return {
+    title: `${branch.name} — Anamata Kāhui`,
+    description: landing.tagline,
+    alternates: {
+      canonical: `${SITE_URL}/${locale}/${slug}`,
+      languages: {
+        en: `${SITE_URL}/en/${slug}`,
+        mi: `${SITE_URL}/mi/${slug}`,
+      },
+    },
+    openGraph: {
+      type: "website",
+      url: `${SITE_URL}/${locale}/${slug}`,
+      siteName: "Anamata Kāhui",
+      title: `${branch.name} — Anamata Kāhui`,
+      description: landing.tagline,
+      locale: locale === "mi" ? "mi_NZ" : "en_NZ",
+      alternateLocale: locale === "mi" ? "en_NZ" : "mi_NZ",
+    },
+  };
+}
 
 export function generateStaticParams() {
   return BRANCHES.map((b) => ({ slug: b.slug }));

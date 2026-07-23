@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Calendar, Hash, Music, Shield } from "lucide-react";
+import type { Metadata } from "next";
 
 import { createAdminClient, createServerSupabase } from "@/lib/supabase/clients";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { LocalContextsLabels } from "@/components/local-contexts/labels-display";
 import { CulturalProvenanceHero } from "@/components/local-contexts/cultural-provenance-hero";
 import { LocalContextsExplainer } from "@/components/local-contexts/explainer";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://anamatakahui.co.nz";
 
 export const revalidate = 300; // refresh every 5 minutes
 
@@ -28,6 +31,63 @@ export async function generateStaticParams() {
     .map((r) => (r.metadata as { slug?: string })?.slug)
     .filter((s): s is string => typeof s === "string")
     .map((slug) => ({ slug }));
+}
+
+/**
+ * Per-waiata metadata — title, description, OG tags.
+ *
+ * Uses admin client (no cookie required) so it runs cleanly at build time
+ * alongside generateStaticParams. Returns sensible defaults if the slug
+ * isn't found (which would also trigger notFound()).
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string; locale: string }>;
+}): Promise<Metadata> {
+  const { slug, locale } = await params;
+  const admin = createAdminClient();
+  const { data: release } = await admin
+    .from("releases")
+    .select("title, description, release_date, metadata")
+    .eq("status", "released")
+    .eq("metadata->>slug", slug)
+    .maybeSingle();
+
+  if (!release) {
+    return {
+      title: "Waiata not found",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const gloss =
+    (release.metadata as { english_gloss?: string } | null)?.english_gloss ?? "";
+
+  const description =
+    release.description?.slice(0, 160) ??
+    `${release.title}${gloss ? ` — ${gloss}` : ""}`;
+
+  return {
+    title: release.title,
+    description,
+    alternates: {
+      canonical: `${SITE_URL}/${locale}/waiata/${slug}`,
+      languages: {
+        en: `${SITE_URL}/en/waiata/${slug}`,
+        mi: `${SITE_URL}/mi/waiata/${slug}`,
+      },
+    },
+    openGraph: {
+      type: "music.song",
+      url: `${SITE_URL}/${locale}/waiata/${slug}`,
+      siteName: "Anamata Kāhui",
+      title: release.title,
+      description,
+      locale: locale === "mi" ? "mi_NZ" : "en_NZ",
+      alternateLocale: locale === "mi" ? "en_NZ" : "mi_NZ",
+    },
+  };
 }
 
 interface PageProps {

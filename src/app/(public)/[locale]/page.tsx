@@ -8,6 +8,30 @@ import { BRANCHES } from "@/lib/branches";
 import type { BranchSlug } from "@/lib/types";
 import { createAdminClient } from "@/lib/supabase/clients";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://anamatakahui.co.nz";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "home" });
+  return {
+    title: { absolute: "Anamata Kāhui" },
+    description: t("lede").slice(0, 160),
+    alternates: {
+      canonical: `${SITE_URL}/${locale}`,
+      languages: { en: `${SITE_URL}/en`, mi: `${SITE_URL}/mi` },
+    },
+    openGraph: {
+      type: "website",
+      url: `${SITE_URL}/${locale}`,
+      siteName: "Anamata Kāhui",
+      title: "Anamata Kāhui",
+      description: t("lede").slice(0, 160),
+      locale: locale === "mi" ? "mi_NZ" : "en_NZ",
+      alternateLocale: locale === "mi" ? "en_NZ" : "mi_NZ",
+    },
+  };
+}
+
 const BRANCH_HOMES: Record<BranchSlug, string> = {
   records:  "/records",
   research: "/research",
