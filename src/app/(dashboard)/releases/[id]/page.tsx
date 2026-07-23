@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LabelManager } from "@/components/local-contexts/label-manager";
 import { MetadataBundleDownload } from "@/components/local-contexts/metadata-bundle-download";
+import { StemUploader } from "@/components/dashboard/stem-uploader";
 import { getEmbeddedCatalogue } from "@/lib/local-contexts/client";
 
 export const metadata = { title: "Release" };
@@ -172,24 +173,21 @@ export default async function ReleaseDetailPage({ params }: PageProps) {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Stems</CardTitle>
-                <Button size="sm" variant="secondary">
-                  <Upload className="h-4 w-4" />
-                  Upload stem
-                </Button>
               </div>
               <CardDescription>
-                Audio stem vault. RLS scopes reads to branch members.
+                Audio stem vault. RLS scopes reads to branch members;
+                writes require lead or admin role.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {!stems || stems.length === 0 ? (
                 <p className="text-sm text-muted-foreground italic">
                   No stems uploaded yet.
                 </p>
               ) : (
-                <ul className="divide-y divide-border">
+                <ul className="divide-y divide-border rounded-md border border-border">
                   {stems.map((s) => (
-                    <li key={s.id} className="flex items-center justify-between py-2 text-sm">
+                    <li key={s.id} className="flex items-center justify-between py-2 px-3 text-sm">
                       <span className="truncate">{s.file_name}</span>
                       <span className="text-xs text-muted-foreground">
                         {s.size_bytes
@@ -200,6 +198,9 @@ export default async function ReleaseDetailPage({ params }: PageProps) {
                   ))}
                 </ul>
               )}
+              <div className="border-t border-border pt-4">
+                <StemUploader releaseId={release.id} />
+              </div>
             </CardContent>
           </Card>
         </div>
