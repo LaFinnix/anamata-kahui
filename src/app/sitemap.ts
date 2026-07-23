@@ -32,6 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/dev/tools/regex",
     "/dev/tools/stem-browser",
     "/evidence",
+    "/faq",
     "/for-funders",
     "/funding",
     "/governance",
