@@ -76,12 +76,13 @@ export default function EvidencePage() {
     <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
       <Badge variant="outline" className="mb-4">Evidence · partners</Badge>
       <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
-        Partners
+        Evidence
       </h1>
       <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-        Named organisations and individuals we work with. Public profiles
-        let partners verify the engagement and let funders see sector
-        connectedness in one click.
+        Live evidence of the kāhui's sector connectedness. Named organisations
+        and individuals we work with — partners, advisors, and accredited
+        reviewers. Public profiles let them verify the engagement, and let
+        funders see the network in one click.
       </p>
 
       <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

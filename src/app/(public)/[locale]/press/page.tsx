@@ -38,7 +38,7 @@ export default async function PressPage() {
           </span>
         </div>
         <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
-          {data.brand.name}
+          {data.brand.name} · Press & Funder Kit
         </h1>
         <p className="mt-4 max-w-3xl text-lg text-muted-foreground">
           {data.brand.tagline}
