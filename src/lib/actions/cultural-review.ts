@@ -11,12 +11,17 @@
  *   - RLS on cultural_review_cycles enforces this server-side
  *   - The append-only trigger blocks UPDATE / DELETE
  *
+ * On APPROVAL with split_participants: auto-creates one endorsement per
+ * registered participant (work-anchored, type='co_creator', from the
+ * release's artist_id). Failure here does NOT undo the cultural-review
+ * decision — the audit row is sacred. Endorsements are derived state.
+ *
  * Returns a discriminated union (decision-result), not redirect.
  * UI components consume the result to show success / error inline.
  */
 
 import { revalidatePath } from "next/cache";
-import { createServerSupabase } from "@/lib/supabase/clients";
+import { createAdminClient, createServerSupabase } from "@/lib/supabase/clients";
 
 export type CulturalDecision = "approved" | "rejected";
 
@@ -25,6 +30,8 @@ export interface CulturalReviewState {
   success?: string;
   decision?: CulturalDecision;
   cycleId?: string;
+  /** Number of endorsements auto-created on approval */
+  endorsementsCreated?: number;
 }
 
 export async function recordCulturalReviewAction(
@@ -60,10 +67,10 @@ export async function recordCulturalReviewAction(
     return { error: "Decision must be 'approved' or 'rejected'." };
   }
 
-  // Verify release exists
+  // Verify release exists — also pull artist_id for endorsement creation
   const { data: release, error: relErr } = await supabase
     .from("releases")
-    .select("id, title")
+    .select("id, title, artist_id")
     .eq("id", releaseId)
     .maybeSingle();
   if (relErr) return { error: `Release lookup failed: ${relErr.message}` };
@@ -105,6 +112,111 @@ export async function recordCulturalReviewAction(
     };
   }
 
+  // ----- Auto-endorse collaborators on approval -----
+  // Per docs/COLLABORATION-MARKETPLACE-PLAN.md §Phase 2 task #2:
+  // "When a work publishes with collaborators, the work's creator endorses
+  // their collaborators in the contribution lineage. Helpers earn their
+  // standing by being chosen by people who carry responsibility for the
+  // outcome."
+  //
+  // We fetch the split_sheet → split_participants for this release and
+  // create one endorsement per participant with profile_id NOT NULL
+  // (external collaborators don't have a profile row to receive).
+  //
+  // Failure-tolerant: if the endorsement insert fails for any reason,
+  // the cultural-review decision still stands. We log loudly so the issue
+  // is visible but don't bubble it as an error to the kaitiaki.
+  let endorsementsCreated = 0;
+  if (decision === "approved") {
+    try {
+      const admin = createAdminClient();
+      const { data: splitSheet } = await admin
+        .from("split_sheets")
+        .select("id")
+        .eq("release_id", releaseId)
+        .maybeSingle();
+
+      if (splitSheet) {
+        const { data: participants } = await admin
+          .from("split_participants")
+          .select("id, profile_id, role")
+          .eq("split_sheet_id", splitSheet.id)
+          .not("profile_id", "is", null);
+
+        if (participants && participants.length > 0) {
+          const rows = participants
+            .filter((p) => p.profile_id !== release.artist_id) // don't self-endorse
+            .map((p) => ({
+              recipient_id: p.profile_id as string,
+              endorser_id: release.artist_id,
+              work_id: releaseId,
+              work_type: "release" as const,
+              endorsement_type: "co_creator" as const,
+              notes: `Cultural review approved — co-creator on "${release.title}".`,
+            }));
+
+          if (rows.length > 0) {
+            const { data: created, error: endErr } = await admin
+              .from("endorsements")
+              .insert(rows)
+              .select("id");
+
+            if (endErr) {
+              console.error(
+                `Auto-endorsement insert failed for release ${releaseId}: ${endErr.message}`,
+              );
+            } else {
+              endorsementsCreated = created?.length ?? 0;
+
+              // Bump each recipient's contribution_count (best-effort)
+              for (const r of rows) {
+                try {
+                  const { data: cur } = await admin
+                    .from("profiles")
+                    .select("contribution_count")
+                    .eq("id", r.recipient_id)
+                    .single();
+                  if (cur) {
+                    await admin
+                      .from("profiles")
+                      .update({
+                        contribution_count: (cur.contribution_count ?? 0) + 1,
+                      })
+                      .eq("id", r.recipient_id);
+                  }
+                } catch (e) {
+                  console.error(
+                    `contribution_count bump failed for ${r.recipient_id}:`,
+                    e,
+                  );
+                }
+              }
+
+              // Notify each recipient
+              for (const r of rows) {
+                await admin.from("notifications").insert({
+                  recipient_id: r.recipient_id,
+                  kind: "endorsement_received",
+                  payload: {
+                    endorsement_type: "co_creator",
+                    work_id: releaseId,
+                    endorser_id: release.artist_id,
+                    source: "cultural_review_approval",
+                  },
+                });
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error(
+        `Auto-endorse on cultural-review approval failed for release ${releaseId}:`,
+        e,
+      );
+    }
+  }
+
   revalidatePath("/admin/kaitiaki");
   revalidatePath(`/admin/kaitiaki/${releaseId}`);
   revalidatePath(`/en/waiata/${releaseId}`);
@@ -113,9 +225,12 @@ export async function recordCulturalReviewAction(
   return {
     success:
       decision === "approved"
-        ? `Approved "${release.title}". The release can now move to scheduled or released.`
+        ? endorsementsCreated > 0
+          ? `Approved "${release.title}". ${endorsementsCreated} collaborator${endorsementsCreated === 1 ? "" : "s"} auto-endorsed.`
+          : `Approved "${release.title}". The release can now move to scheduled or released.`
         : `Rejected "${release.title}". The release cannot be scheduled or released until approved.`,
     decision,
     cycleId: cycle.id,
+    endorsementsCreated,
   };
 }

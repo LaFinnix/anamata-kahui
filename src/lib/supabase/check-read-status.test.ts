@@ -1,15 +1,22 @@
 /**
- * Unit tests for check-read-status (no-build-needed, no framework).
+ * Unit tests for check-read-status (caching + stale-fallback logic).
  *
- * Uses Node's built-in `node:test` runner.
- * Run with: node --test src/lib/supabase/check-read-status.test.ts
+ * Converted from `node:test` to Vitest so the full test runner is
+ * consistent. The function is mirrored here (same as the original
+ * test file); when a Vitest-compatible test runner is available, this
+ * could be replaced with a real import.
  *
- * (Requires ts-node or tsx. If unavailable, copy the function into a
- * .mjs and test that way.)
+ * Covers:
+ *   - First fetch + cache hit
+ *   - TTL freshness (no refetch within window)
+ *   - Stale refresh after TTL
+ *   - First-ever failure: fail closed
+ *   - Failure with cache: serve stale within grace period
+ *   - Past grace period: fail closed
+ *   - Recovery: staleSince resets on success
+ *   - 5xx response: same as network error
+ *   - Missing env vars: fail closed / serve cache
  */
-
-import { test } from "node:test";
-import assert from "node:assert/strict";
 
 // We need to import the compiled function. Since this is a .ts file,
 // let's just inline a copy. (The risk is drift; the actual function is
@@ -17,7 +24,7 @@ import assert from "node:assert/strict";
 //
 // TODO: replace this with a real import once we have ts-node configured.
 
-type Result = boolean | "throw";
+import { describe, it, expect, beforeEach } from "vitest";
 
 // --- stub of the function (must mirror check-read-status.ts) ---
 let cache: any = null;
@@ -72,158 +79,142 @@ function jsonResponse(body: unknown) {
 function errorResponse(status: number) {
   return new Response("error", { status });
 }
-function networkError() {
-  return fetch("about:blank").then(
-    () => { throw new Error("unexpected"); },
-    (e) => { throw e; },
-  );
-}
 
-// --- tests ---
-test("first request fetches and answers correctly", async () => {
-  resetCache();
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
-  setFetchImpl(() => Promise.resolve(jsonResponse([{ slug: "a" }, { slug: "b" }])));
-  assert.equal(await isReadSlugPublished("a", 1000), true);
-  assert.equal(await isReadSlugPublished("b", 1100), true);
-  assert.equal(await isReadSlugPublished("c", 1200), false);
-});
+describe("isReadSlugPublished", () => {
+  beforeEach(() => {
+    resetCache();
+  });
 
-test("fresh cache does not refetch within TTL", async () => {
-  resetCache();
-  let calls = 0;
-  setFetchImpl(() => { calls++; return Promise.resolve(jsonResponse([{ slug: "x" }])); });
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
-  await isReadSlugPublished("x", 1000);  // initial fetch (T=0, cache expires T=10000)
-  assert.equal(await isReadSlugPublished("x", 5000), true);  // within TTL
-  assert.equal(await isReadSlugPublished("x", 9000), true);  // within TTL
-  assert.equal(calls, 1);  // only the initial fetch
-});
+  it("first request fetches and answers correctly", async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    setFetchImpl(() => Promise.resolve(jsonResponse([{ slug: "a" }, { slug: "b" }])));
+    expect(await isReadSlugPublished("a", 1000)).toBe(true);
+    expect(await isReadSlugPublished("b", 1100)).toBe(true);
+    expect(await isReadSlugPublished("c", 1200)).toBe(false);
+  });
 
-test("stale cache refreshes after TTL", async () => {
-  resetCache();
-  let calls = 0;
-  setFetchImpl(() => { calls++; return Promise.resolve(jsonResponse([{ slug: "x" }])); });
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
-  await isReadSlugPublished("x", 1000);            // initial fetch
-  await isReadSlugPublished("x", 12000);           // past TTL (10000)
-  assert.equal(calls, 2);
-});
+  it("fresh cache does not refetch within TTL", async () => {
+    let calls = 0;
+    setFetchImpl(() => {
+      calls++;
+      return Promise.resolve(jsonResponse([{ slug: "x" }]));
+    });
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    await isReadSlugPublished("x", 1000); // initial fetch
+    expect(await isReadSlugPublished("x", 5000)).toBe(true); // within TTL
+    expect(await isReadSlugPublished("x", 9000)).toBe(true); // within TTL
+    expect(calls).toBe(1); // only the initial fetch
+  });
 
-test("first-ever request with PostgREST down: fail closed", async () => {
-  resetCache();
-  setFetchImpl(() => Promise.reject(new Error("network down")));
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
-  assert.equal(await isReadSlugPublished("x", 1000), false);
-  assert.equal(cache, null);  // no cache stored after failure
-});
+  it("stale cache refreshes after TTL", async () => {
+    let calls = 0;
+    setFetchImpl(() => {
+      calls++;
+      return Promise.resolve(jsonResponse([{ slug: "x" }]));
+    });
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    await isReadSlugPublished("x", 1000); // initial fetch
+    await isReadSlugPublished("x", 12000); // past TTL (10000)
+    expect(calls).toBe(2);
+  });
 
-test("PostgREST down with cached list: serve stale within grace period", async () => {
-  resetCache();
-  let fail = false;
-  setFetchImpl(() => fail
-    ? Promise.reject(new Error("network down"))
-    : Promise.resolve(jsonResponse([{ slug: "x" }, { slug: "y" }])));
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
-  // Initial successful fetch at T=1000
-  await isReadSlugPublished("x", 1000);
-  // Now PostgREST goes down at T=12000 (past TTL)
-  fail = true;
-  // Within grace period: serve cached list
-  assert.equal(await isReadSlugPublished("x", 12000), true);
-  assert.equal(await isReadSlugPublished("y", 30000), true);
-  assert.equal(await isReadSlugPublished("z", 60000), false); // not in cache
-  // Verify staleSince was set
-  assert.equal(cache.staleSince, 12000);
-});
+  it("first-ever request with PostgREST down: fail closed", async () => {
+    setFetchImpl(() => Promise.reject(new Error("network down")));
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    expect(await isReadSlugPublished("x", 1000)).toBe(false);
+    expect(cache).toBeNull(); // no cache stored after failure
+  });
 
-test("PostgREST down past grace period: fail closed", async () => {
-  resetCache();
-  let fail = false;
-  setFetchImpl(() => fail
-    ? Promise.reject(new Error("network down"))
-    : Promise.resolve(jsonResponse([{ slug: "x" }])));
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
-  await isReadSlugPublished("x", 1000);  // cache populated
-  fail = true;
-  await isReadSlugPublished("x", 12000);  // first failure: staleSince=12000
-  // 5 min 1 s after first failure: past grace period
-  const t_past = 12000 + STALE_GRACE_MS + 1000;
-  assert.equal(await isReadSlugPublished("x", t_past), false);
-});
+  it("PostgREST down with cached list: serve stale within grace period", async () => {
+    let fail = false;
+    setFetchImpl(() =>
+      fail
+        ? Promise.reject(new Error("network down"))
+        : Promise.resolve(jsonResponse([{ slug: "x" }, { slug: "y" }]))
+    );
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    // Initial successful fetch at T=1000
+    await isReadSlugPublished("x", 1000);
+    // Now PostgREST goes down at T=12000 (past TTL)
+    fail = true;
+    // Within grace period: serve cached list
+    expect(await isReadSlugPublished("x", 12000)).toBe(true);
+    expect(await isReadSlugPublished("y", 30000)).toBe(true);
+    expect(await isReadSlugPublished("z", 60000)).toBe(false); // not in cache
+    // Verify staleSince was set
+    expect(cache.staleSince).toBe(12000);
+  });
 
-test("PostgREST recovers: staleSince resets on successful refresh", async () => {
-  resetCache();
-  let fail = false;
-  setFetchImpl(() => fail
-    ? Promise.reject(new Error("network down"))
-    : Promise.resolve(jsonResponse([{ slug: "x" }, { slug: "new" }])));
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+  it("PostgREST down past grace period: fail closed", async () => {
+    let fail = false;
+    setFetchImpl(() =>
+      fail
+        ? Promise.reject(new Error("network down"))
+        : Promise.resolve(jsonResponse([{ slug: "x" }]))
+    );
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    await isReadSlugPublished("x", 1000); // cache populated
+    fail = true;
+    await isReadSlugPublished("x", 12000); // first failure: staleSince=12000
+    // 5 min 1 s after first failure: past grace period
+    const t_past = 12000 + STALE_GRACE_MS + 1000;
+    expect(await isReadSlugPublished("x", t_past)).toBe(false);
+  });
 
-  // Populate cache at T=1000
-  await isReadSlugPublished("x", 1000);
-  assert.equal(cache.staleSince, null);
+  it("PostgREST recovers: staleSince resets on successful refresh", async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    setFetchImpl(() =>
+      Promise.resolve(jsonResponse([{ slug: "x" }, { slug: "new" }]))
+    );
+    // Populate cache at T=1000
+    await isReadSlugPublished("x", 1000);
+    expect(cache.staleSince).toBeNull();
 
-  // Reset cache and force a failure path: refresh at T=2000, fails,
-  // staleSince set
-  fail = true;
-  // Bypass the cache by calling with a future time past TTL
-  await isReadSlugPublished("x", 12000);  // expires=11000 → expired
-  assert.equal(cache.staleSince, 12000);
+    // Mark the cache as stale-but-recoverable: past expires, with staleSince set
+    cache = {
+      slugs: new Set(["x"]),
+      expires: 14000, // past
+      staleSince: 12000, // 2s ago
+    };
+    await isReadSlugPublished("x", 14000);
+    expect(cache.staleSince).toBeNull();
+    expect(cache.expires).toBe(14000 + 10000); // reset to TTL
+    expect(await isReadSlugPublished("new", 14000)).toBe(true);
+  });
 
-  // Recover: simulate PostgREST coming back up. Call again with a
-  // time past TTL but within grace period — the function will
-  // attempt a refresh, which now succeeds, and reset staleSince.
-  fail = false;
-  await isReadSlugPublished("x", 13000);  // expired at 312000+ but cache
-                                            // is also marked stale — let's
-                                            // be explicit:
-  // Actually after the failure, expires = 12000 + 300000 = 312000,
-  // so cache is "fresh" for 5 minutes. Let's wait past that.
-  // Easier: test recovery via direct cache manipulation.
-  cache = {
-    slugs: new Set(["x"]),
-    expires: 14000, // past
-    staleSince: 12000, // first failure at 12000, 2s ago
-  };
-  await isReadSlugPublished("x", 14000);
-  assert.equal(cache.staleSince, null);
-  assert.equal(cache.expires, 14000 + 10000); // reset to TTL
-  assert.equal(await isReadSlugPublished("new", 14000), true); // new slug
-});
+  it("5xx response handled same as network error", async () => {
+    let fail = false;
+    setFetchImpl(() =>
+      fail
+        ? Promise.resolve(errorResponse(503))
+        : Promise.resolve(jsonResponse([{ slug: "x" }]))
+    );
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    await isReadSlugPublished("x", 1000);
+    fail = true;
+    expect(await isReadSlugPublished("x", 12000)).toBe(true); // cached
+  });
 
-test("5xx response handled same as network error", async () => {
-  resetCache();
-  let fail = false;
-  setFetchImpl(() => fail
-    ? Promise.resolve(errorResponse(503))
-    : Promise.resolve(jsonResponse([{ slug: "x" }])));
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
-  await isReadSlugPublished("x", 1000);
-  fail = true;
-  assert.equal(await isReadSlugPublished("x", 12000), true); // cached
-});
-
-test("no env vars: fail closed on first request, serve cache if present", async () => {
-  resetCache();
-  delete process.env.NEXT_PUBLIC_SUPABASE_URL;
-  delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  assert.equal(await isReadSlugPublished("x", 1000), false); // no cache, no env → closed
-  // Now restore env + populate cache
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
-  setFetchImpl(() => Promise.resolve(jsonResponse([{ slug: "x" }])));
-  await isReadSlugPublished("x", 2000);
-  // Drop env again — cache should still serve
-  delete process.env.NEXT_PUBLIC_SUPABASE_URL;
-  delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  assert.equal(await isReadSlugPublished("x", 3000), true);
+  it("no env vars: fail closed on first request, serve cache if present", async () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    expect(await isReadSlugPublished("x", 1000)).toBe(false); // no cache, no env → closed
+    // Now restore env + populate cache
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    setFetchImpl(() => Promise.resolve(jsonResponse([{ slug: "x" }])));
+    await isReadSlugPublished("x", 2000);
+    // Drop env again — cache should still serve
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    expect(await isReadSlugPublished("x", 3000)).toBe(true);
+  });
 });

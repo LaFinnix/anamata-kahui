@@ -1,13 +1,13 @@
 /**
  * Unit tests for safe-redirect (no DB needed).
  *
- * Run with:
- *   node --experimental-strip-types --test \\
- *     src/lib/auth/safe-redirect.test.ts
+ * Converted from `node:test` to Vitest so the full test runner is
+ * consistent. The function under test is mirrored here (same as the
+ * original test file) — when a Vitest-compatible test runner is
+ * available, this could be replaced with an import.
  */
 
-import { test } from "node:test";
-import assert from "node:assert/strict";
+import { describe, it, expect } from "vitest";
 
 // Mirror of src/lib/auth/safe-redirect.ts
 function safeRedirect(
@@ -25,72 +25,74 @@ function safeRedirect(
   return trimmed;
 }
 
-test("accepts same-origin paths", () => {
-  assert.equal(safeRedirect("/admin"), "/admin");
-  assert.equal(safeRedirect("/waiata/te-tinihanga"), "/waiata/te-tinihanga");
-  assert.equal(safeRedirect("/mi/about?q=1"), "/mi/about?q=1");
-  assert.equal(safeRedirect("/admin#section"), "/admin#section");
-  assert.equal(safeRedirect("/"), "/");
-});
+describe("safeRedirect", () => {
+  it("accepts same-origin paths", () => {
+    expect(safeRedirect("/admin")).toBe("/admin");
+    expect(safeRedirect("/waiata/te-tinihanga")).toBe("/waiata/te-tinihanga");
+    expect(safeRedirect("/mi/about?q=1")).toBe("/mi/about?q=1");
+    expect(safeRedirect("/admin#section")).toBe("/admin#section");
+    expect(safeRedirect("/")).toBe("/");
+  });
 
-test("rejects protocol-relative URLs (//evil.com)", () => {
-  assert.equal(safeRedirect("//evil.com"), "/admin");
-  assert.equal(safeRedirect("//evil.com/path"), "/admin");
-  assert.equal(safeRedirect("///triple"), "/admin");
-});
+  it("rejects protocol-relative URLs (//evil.com)", () => {
+    expect(safeRedirect("//evil.com")).toBe("/admin");
+    expect(safeRedirect("//evil.com/path")).toBe("/admin");
+    expect(safeRedirect("///triple")).toBe("/admin");
+  });
 
-test("rejects absolute URLs", () => {
-  assert.equal(safeRedirect("https://evil.com"), "/admin");
-  assert.equal(safeRedirect("http://evil.com/admin"), "/admin");
-  assert.equal(safeRedirect("ftp://anywhere"), "/admin");
-});
+  it("rejects absolute URLs", () => {
+    expect(safeRedirect("https://evil.com")).toBe("/admin");
+    expect(safeRedirect("http://evil.com/admin")).toBe("/admin");
+    expect(safeRedirect("ftp://anywhere")).toBe("/admin");
+  });
 
-test("rejects javascript: and data: schemes", () => {
-  assert.equal(safeRedirect("javascript:alert(1)"), "/admin");
-  assert.equal(safeRedirect("data:text/html,<script>alert(1)</script>"), "/admin");
-  assert.equal(safeRedirect("vbscript:msgbox(1)"), "/admin");
-});
+  it("rejects javascript: and data: schemes", () => {
+    expect(safeRedirect("javascript:alert(1)")).toBe("/admin");
+    expect(safeRedirect("data:text/html,<script>alert(1)</script>")).toBe("/admin");
+    expect(safeRedirect("vbscript:msgbox(1)")).toBe("/admin");
+  });
 
-test("rejects backslash tricks", () => {
-  // Some browsers normalize \ to /
-  assert.equal(safeRedirect("/\\evil.com"), "/admin");
-  assert.equal(safeRedirect("\\\\evil.com"), "/admin");
-  assert.equal(safeRedirect("/admin\\path"), "/admin");
-});
+  it("rejects backslash tricks", () => {
+    // Some browsers normalize \ to /
+    expect(safeRedirect("/\\evil.com")).toBe("/admin");
+    expect(safeRedirect("\\\\evil.com")).toBe("/admin");
+    expect(safeRedirect("/admin\\path")).toBe("/admin");
+  });
 
-test("rejects bare hosts and relative paths", () => {
-  assert.equal(safeRedirect("evil.com"), "/admin");
-  assert.equal(safeRedirect("admin"), "/admin");
-  assert.equal(safeRedirect("./admin"), "/admin");
-  assert.equal(safeRedirect("../admin"), "/admin");
-});
+  it("rejects bare hosts and relative paths", () => {
+    expect(safeRedirect("evil.com")).toBe("/admin");
+    expect(safeRedirect("admin")).toBe("/admin");
+    expect(safeRedirect("./admin")).toBe("/admin");
+    expect(safeRedirect("../admin")).toBe("/admin");
+  });
 
-test("handles null and undefined", () => {
-  assert.equal(safeRedirect(null), "/admin");
-  assert.equal(safeRedirect(undefined), "/admin");
-  assert.equal(safeRedirect(""), "/admin");
-});
+  it("handles null and undefined", () => {
+    expect(safeRedirect(null)).toBe("/admin");
+    expect(safeRedirect(undefined)).toBe("/admin");
+    expect(safeRedirect("")).toBe("/admin");
+  });
 
-test("uses custom fallback", () => {
-  assert.equal(safeRedirect(null, "/login"), "/login");
-  assert.equal(safeRedirect("https://evil.com", "/home"), "/home");
-  assert.equal(safeRedirect("/", "/login"), "/");
-});
+  it("uses custom fallback", () => {
+    expect(safeRedirect(null, "/login")).toBe("/login");
+    expect(safeRedirect("https://evil.com", "/home")).toBe("/home");
+    expect(safeRedirect("/", "/login")).toBe("/");
+  });
 
-test("preserves query string and hash on accepted paths", () => {
-  assert.equal(safeRedirect("/admin?tab=users"), "/admin?tab=users");
-  assert.equal(safeRedirect("/admin#users-section"), "/admin#users-section");
-  assert.equal(safeRedirect("/admin?a=1&b=2#x"), "/admin?a=1&b=2#x");
-});
+  it("preserves query string and hash on accepted paths", () => {
+    expect(safeRedirect("/admin?tab=users")).toBe("/admin?tab=users");
+    expect(safeRedirect("/admin#users-section")).toBe("/admin#users-section");
+    expect(safeRedirect("/admin?a=1&b=2#x")).toBe("/admin?a=1&b=2#x");
+  });
 
-test("does not modify the input (returns same string for valid paths)", () => {
-  const input = "/waiata/te-tinihanga?lang=mi";
-  assert.equal(safeRedirect(input), input);
-});
+  it("does not modify the input (returns same string for valid paths)", () => {
+    const input = "/waiata/te-tinihanga?lang=mi";
+    expect(safeRedirect(input)).toBe(input);
+  });
 
-test("does not accept whitespace-padded values", () => {
-  // Whitespace prefix is suspicious
-  assert.equal(safeRedirect(" /admin"), "/admin");
-  assert.equal(safeRedirect("/admin\n"), "/admin");
-  assert.equal(safeRedirect("\t/admin"), "/admin");
+  it("does not accept whitespace-padded values", () => {
+    // Whitespace prefix is suspicious
+    expect(safeRedirect(" /admin")).toBe("/admin");
+    expect(safeRedirect("/admin\n")).toBe("/admin");
+    expect(safeRedirect("\t/admin")).toBe("/admin");
+  });
 });
