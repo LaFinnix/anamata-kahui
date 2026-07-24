@@ -11,6 +11,20 @@ import { CulturalProvenanceHero } from "@/components/local-contexts/cultural-pro
 
 export const revalidate = 600;
 
+/**
+ * List the published paper IDs at build time. The page calls notFound()
+ * for IDs not in this list (which is the intended 404 behaviour).
+ */
+export async function generateStaticParams() {
+  const admin = createAdminClient();
+  const { data: papers } = await admin
+    .from("research_documents")
+    .select("id")
+    .eq("status", "published")
+    .eq("access_tier", "open");
+  return (papers ?? []).map((p) => ({ id: p.id }));
+}
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }

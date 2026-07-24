@@ -17,6 +17,21 @@ import { EndorseButton } from "@/components/endorsements/endorse-button";
 export const revalidate = 600;
 
 /**
+ * List the public artist IDs at build time. The page calls notFound()
+ * for IDs not in this list (which is the intended 404 behaviour for
+ * non-existent or non-public profiles).
+ */
+export async function generateStaticParams() {
+  const admin = createAdminClient();
+  const { data: profiles } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("kaikorero_visible", true)
+    .eq("opted_in_public_directory", true);
+  return (profiles ?? []).map((p) => ({ id: p.id }));
+}
+
+/**
  * /[locale]/artist/[id] — public Kaikōrero profile.
  *
  * Critical: this route 404s (does NOT show "private") when:

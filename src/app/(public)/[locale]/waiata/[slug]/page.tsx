@@ -12,8 +12,6 @@ import { LocalContextsExplainer } from "@/components/local-contexts/explainer";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://anamatakahui.co.nz";
 
-export const revalidate = 300; // refresh every 5 minutes
-
 /**
  * Pre-render the slug list at build time using the service-role client.
  * Using createAdminClient avoids the cookies() call that runs at request time
