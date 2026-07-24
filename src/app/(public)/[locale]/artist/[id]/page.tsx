@@ -37,8 +37,17 @@ export default async function PublicKaikoreroProfilePage({
 }) {
   const { id } = await params;
   const admin = createAdminClient();
-  const supabase = await createServerSupabase();
-  const { data: { user: viewer } } = await supabase.auth.getUser();
+  // The viewer check is optional. Wrap in try/catch so a missing/expired
+  // session or a build-time static-render call doesn't fail the page —
+  // an anonymous viewer just means no endorse button.
+  let viewer: { id: string } | null = null;
+  try {
+    const supabase = await createServerSupabase();
+    const { data } = await supabase.auth.getUser();
+    viewer = data?.user ?? null;
+  } catch {
+    viewer = null;
+  }
   const t = await getTranslations("endorsements");
 
   // Single fetch — both opt-in flags must be true.
