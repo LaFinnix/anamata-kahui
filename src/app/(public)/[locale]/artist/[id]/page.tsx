@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Globe, Sparkles, Users, ShieldCheck, Award, ShieldOff, Megaphone } from "lucide-react";
 
-import { createAdminClient, createServerSupabase } from "@/lib/supabase/clients";
+import { createAdminClient } from "@/lib/supabase/clients";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DOMAIN_LABEL, KNOWLEDGE_DOMAINS, type KnowledgeDomain } from "@/lib/kaikorero/types";
@@ -52,17 +52,12 @@ export default async function PublicKaikoreroProfilePage({
 }) {
   const { id } = await params;
   const admin = createAdminClient();
-  // The viewer check is optional. Wrap in try/catch so a missing/expired
-  // session or a build-time static-render call doesn't fail the page —
-  // an anonymous viewer just means no endorse button.
-  let viewer: { id: string } | null = null;
-  try {
-    const supabase = await createServerSupabase();
-    const { data } = await supabase.auth.getUser();
-    viewer = data?.user ?? null;
-  } catch {
-    viewer = null;
-  }
+  // We use the admin client only — the page does public reads.
+  // createServerSupabase() calls cookies() which throws during static
+  // generation / for build-time renders of unknown IDs, so we avoid it.
+  // The endorse button (which needs the viewer's session) is a client
+  // component that reads auth state on its own.
+  const viewer = null as { id: string } | null;
   const t = await getTranslations("endorsements");
 
   // Single fetch — both opt-in flags must be true.
