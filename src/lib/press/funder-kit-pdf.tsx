@@ -18,6 +18,7 @@ import {
 } from "@react-pdf/renderer";
 import { getFunderKitData } from "@/lib/press/funder-kit-data";
 import type { FunderKitData } from "@/lib/press/funder-kit-data";
+import { TOUR_STOPS } from "@/lib/press/system-tour";
 
 // ---------------------------------------------------------------------------
 // Styles
@@ -198,6 +199,36 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: COLORS.pounamu,
     fontFamily: "Helvetica-Bold",
+  },
+  tourStopNumber: {
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: COLORS.bronze,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  tourStopTitle: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: COLORS.ink,
+    marginBottom: 4,
+  },
+  tourStopIntro: {
+    fontSize: 9,
+    color: COLORS.inkSoft,
+    lineHeight: 1.4,
+    marginBottom: 4,
+  },
+  tourStopDecision: {
+    fontSize: 8,
+    color: COLORS.inkSoft,
+    fontStyle: "italic",
+    lineHeight: 1.4,
+    marginBottom: 10,
+    paddingLeft: 8,
+    borderLeftWidth: 2,
+    borderLeftColor: COLORS.bronze,
   },
   linkRow: {
     flexDirection: "row",
@@ -436,6 +467,35 @@ function FunderKitDocument({ data }: { data: FunderKitData }) {
         <View style={styles.footer} fixed>
           <Text>Anamata Kāhui · {data.brand.email} · {data.brand.url}</Text>
           <Text>Page 3</Text>
+        </View>
+      </Page>
+
+      {/* SYSTEM TOUR — a condensed text version of the 6-stop walkthrough.
+          The HTML tour at /for-funders/tour has the full UI mockups; the
+          PDF version is the portable, text-only equivalent for a funding
+          application packet. */}
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.h2}>System tour — how a waiata moves through the kāhui</Text>
+        <Text style={styles.paragraph}>
+          The same six-stop walkthrough as the live tour at{" "}
+          <Text style={styles.linkUrl}>{data.brand.url}/for-funders/tour</Text>.
+          This text version is a portable summary for funding applications
+          and reference packets — the live tour renders the actual UI
+          components for a richer reading.
+        </Text>
+
+        {TOUR_STOPS.map((stop) => (
+          <View key={stop.n} wrap={false}>
+            <Text style={styles.tourStopNumber}>Stop {String(stop.n).padStart(2, "0")} · {stop.subtitle}</Text>
+            <Text style={styles.tourStopTitle}>{stop.title}</Text>
+            <Text style={styles.tourStopIntro}>{stop.intro}</Text>
+            <Text style={styles.tourStopDecision}>{stop.designNote}</Text>
+          </View>
+        ))}
+
+        <View style={styles.footer} fixed>
+          <Text>Anamata Kāhui · {data.brand.email} · {data.brand.url}</Text>
+          <Text>Page 4</Text>
         </View>
       </Page>
     </Document>
