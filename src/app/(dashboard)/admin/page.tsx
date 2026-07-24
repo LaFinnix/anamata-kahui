@@ -94,11 +94,11 @@ export default async function AdminOverviewPage() {
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm">
-            <li><Link className="text-bronze-300 hover:text-bronze-200" href="/records">Records dashboard →</Link></li>
-            <li><Link className="text-bronze-300 hover:text-bronze-200" href="/releases">Release pipeline →</Link></li>
+            <li><Link className="text-bronze-300 hover:text-bronze-200" href="/dashboard/records">Records dashboard →</Link></li>
+            <li><Link className="text-bronze-300 hover:text-bronze-200" href="/dashboard/releases">Release pipeline →</Link></li>
             <li><Link className="text-bronze-300 hover:text-bronze-200" href="/analytics">Stream & revenue analytics →</Link></li>
-            <li><Link className="text-bronze-300 hover:text-bronze-200" href="/research">Research portal →</Link></li>
-            <li><Link className="text-bronze-300 hover:text-bronze-200" href="/dev">Dev console →</Link></li>
+            <li><Link className="text-bronze-300 hover:text-bronze-200" href="/dashboard/research">Research portal →</Link></li>
+            <li><Link className="text-bronze-300 hover:text-bronze-200" href="/dashboard/dev">Dev console →</Link></li>
           </ul>
         </CardContent>
       </Card>

@@ -45,7 +45,7 @@ export default async function LibraryPage() {
             <CardContent className="p-6 text-sm text-muted-foreground italic">
               <Library className="mb-2 h-5 w-5 text-bronze-300" />
               Library is empty. Add documents via{" "}
-              <Link href="/research" className="text-bronze-300 hover:text-bronze-200 underline">
+              <Link href="/dashboard/research" className="text-bronze-300 hover:text-bronze-200 underline">
                 /research
               </Link>
               .

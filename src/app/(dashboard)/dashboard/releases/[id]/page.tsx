@@ -68,7 +68,7 @@ export default async function ReleaseDetailPage({ params }: PageProps) {
     <div className="space-y-8">
       <div>
         <Button asChild variant="ghost" size="sm" className="mb-4">
-          <Link href="/releases">
+          <Link href="/dashboard/releases">
             <ArrowLeft className="h-4 w-4" />
             Back to pipeline
           </Link>

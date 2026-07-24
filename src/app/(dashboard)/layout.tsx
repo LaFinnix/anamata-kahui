@@ -98,8 +98,8 @@ const NAV_GROUPS: NavGroup[] = [
     branchSlug: "records",
     icon: Music,
     items: [
-      { href: "/records", label: "Roster", icon: Users },
-      { href: "/releases", label: "Releases", icon: Upload },
+      { href: "/dashboard/records", label: "Roster", icon: Users },
+      { href: "/dashboard/releases", label: "Releases", icon: Upload },
       { href: "/demos", label: "Demos", icon: Mic2 },
       { href: "/stem-vault", label: "Stem Vault", icon: HardDrive },
       { href: "/analytics", label: "Analytics", icon: BarChart3 },
@@ -110,8 +110,8 @@ const NAV_GROUPS: NavGroup[] = [
     branchSlug: "research",
     icon: BookOpen,
     items: [
-      { href: "/research", label: "Papers", icon: FileText },
-      { href: "/research/field-projects", label: "Field projects", icon: GitBranch },
+      { href: "/dashboard/research", label: "Papers", icon: FileText },
+      { href: "/dashboard/research/field-projects", label: "Field projects", icon: GitBranch },
       { href: "/library", label: "Library", icon: Library },
     ],
   },
@@ -120,9 +120,9 @@ const NAV_GROUPS: NavGroup[] = [
     branchSlug: "arts",
     icon: Palette,
     items: [
-      { href: "/arts", label: "Galleries", icon: ImageIcon },
-      { href: "/arts/portfolios", label: "Portfolios", icon: Palette },
-      { href: "/arts/commissions", label: "Commissions", icon: Mic2 },
+      { href: "/dashboard/arts", label: "Galleries", icon: ImageIcon },
+      { href: "/dashboard/arts/portfolios", label: "Portfolios", icon: Palette },
+      { href: "/dashboard/arts/commissions", label: "Commissions", icon: Mic2 },
     ],
   },
   {
@@ -130,9 +130,9 @@ const NAV_GROUPS: NavGroup[] = [
     branchSlug: "dev",
     icon: Code2,
     items: [
-      { href: "/dev", label: "API keys", icon: KeyRound },
-      { href: "/dev/webhooks", label: "Webhooks", icon: Webhook },
-      { href: "/dev/jobs", label: "Background jobs", icon: Terminal },
+      { href: "/dashboard/dev", label: "API keys", icon: KeyRound },
+      { href: "/dashboard/dev/webhooks", label: "Webhooks", icon: Webhook },
+      { href: "/dashboard/dev/jobs", label: "Background jobs", icon: Terminal },
     ],
   },
   {
