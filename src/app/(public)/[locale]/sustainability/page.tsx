@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Leaf, Server, Cloud, Wind } from "lucide-react";
 
-export const metadata = { title: "Te Taiao" };
+export const metadata = { title: "Te Taiao · Sustainability" };
 
 /**
  * Te Taiao sustainability commitment.
@@ -17,6 +17,9 @@ export default function SustainabilityPage() {
       <Badge variant="outline" className="mb-4">Te Taiao · Sustainability</Badge>
       <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
         Te Taiao
+        <span className="block text-2xl font-normal text-muted-foreground sm:text-3xl">
+          Sustainability
+        </span>
       </h1>
       <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
         How Anamata Kāhui honours the natural environment through the
