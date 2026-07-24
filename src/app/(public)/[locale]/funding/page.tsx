@@ -2,27 +2,111 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, CheckCircle2, Clock } from "lucide-react";
 
+import { createAdminClient } from "@/lib/supabase/clients";
+
 export const metadata = { title: "Funding" };
+export const revalidate = 300; // 5-minute refresh
 
 /**
  * Public funding transparency — funder signal.
  *
  * Per audit §2.14. Every grant received, applied for, and pending is
- * surfaced here. Auto-populated from `funding_outcomes` table once that
- * ships; this page is the static display.
+ * surfaced here. Auto-populated from `funding_applications` where
+ * `is_public = true`. The year is derived from `decision_date` (or
+ * `submitted_date` if no decision yet) so it always reflects the live
+ * data, not a hand-typed string.
  */
-export default function FundingPage() {
-  const grants = [
-    {
-      year: "2026",
-      round: "Organizations and Groups Development Fund",
-      body: "Creative New Zealand",
-      amount: "NZD $10,000",
-      status: "won",
-      programme: "Cultural Competency + Accessibility (12-month capability build)",
-      summary: "NZQA Level 4 Bicultural Competency + Accessibility Charter + Māori & Disabled Advisory Board. Application analysis at /opt/data/anamata/funding/past-applications/analysis/2026-04-CreativeNZ-DevelopmentFund-analysis.md.",
-    },
-  ];
+
+interface GrantRow {
+  id: string;
+  funder_name: string;
+  round: string | null;
+  status: "planned" | "pending" | "awarded" | "declined";
+  amount_requested_nzd: number | null;
+  amount_awarded_nzd: number | null;
+  submitted_date: string | null;
+  decision_date: string | null;
+  title: string | null;
+  public_summary: string | null;
+  artist_roster_id: string | null;
+  /** When artist_roster_id is set, the artist name for display. */
+  artist_name: string | null;
+}
+
+interface DisplayGrant {
+  year: string;
+  round: string;
+  funder: string;
+  amount: string;
+  status: string;
+  programme: string;
+  summary: string;
+  artist_name: string | null;
+}
+
+function deriveYear(g: GrantRow): string {
+  const d = g.decision_date ?? g.submitted_date;
+  if (!d) return "—";
+  return d.slice(0, 4);
+}
+
+function formatAmount(g: GrantRow): string {
+  const n = g.amount_awarded_nzd ?? g.amount_requested_nzd;
+  if (n === null) return "—";
+  return `NZD $${n.toLocaleString("en-NZ")}`;
+}
+
+function statusLabel(s: GrantRow["status"]): string {
+  if (s === "awarded") return "Awarded";
+  if (s === "pending") return "Pending";
+  if (s === "planned") return "Planned";
+  return "Declined";
+}
+
+function toDisplay(g: GrantRow & { artist_name?: string | null }): DisplayGrant {
+  return {
+    year: deriveYear(g),
+    round: g.round ?? g.title ?? "—",
+    funder: g.funder_name,
+    amount: formatAmount(g),
+    status: statusLabel(g.status),
+    programme: g.title ?? "—",
+    summary: g.public_summary ?? "—",
+    artist_name: g.artist_name ?? null,
+  };
+}
+
+async function getGrants(): Promise<DisplayGrant[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("funding_applications")
+    .select(
+      `id, funder_name, round, status, amount_requested_nzd, amount_awarded_nzd,
+       submitted_date, decision_date, title, public_summary, artist_roster_id,
+       roster:artist_roster!funding_applications_artist_roster_id_fkey (
+         profile:profiles!artist_roster_profile_id_fkey (full_name)
+       )`,
+    )
+    .eq("is_public", true)
+    .order("decision_date", { ascending: false, nullsFirst: false })
+    .order("submitted_date", { ascending: false, nullsFirst: false })
+    .limit(50);
+  if (error || !data) {
+    console.error("[/funding]", error?.message);
+    return [];
+  }
+  // PostgREST returns FK joins as either object or array; normalise.
+  return ((data ?? []) as unknown as Array<GrantRow & {
+    roster: { profile: { full_name: string | null } | { full_name: string | null }[] | null } | null;
+  }>).map((g) => {
+    const profile = g.roster?.profile;
+    const profileObj = Array.isArray(profile) ? profile[0] : profile;
+    const artistName = profileObj?.full_name?.trim() || null;
+    return toDisplay({ ...g, artist_name: artistName });
+  });
+}
+export default async function FundingPage() {
+  const grants = await getGrants();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
@@ -46,12 +130,17 @@ export default function FundingPage() {
                     <div className="flex items-center gap-2">
                       <Badge variant="success" className="gap-1">
                         <CheckCircle2 className="h-3 w-3" />
-                        {g.status === "won" ? "Awarded" : g.status}
+                        {g.status}
                       </Badge>
                       <span className="text-sm text-muted-foreground">{g.year}</span>
                     </div>
                     <CardTitle className="mt-2 text-xl">{g.round}</CardTitle>
-                    <CardDescription>{g.body}</CardDescription>
+                    <CardDescription>{g.funder}</CardDescription>
+                    {g.artist_name && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        For <span className="font-medium">{g.artist_name}</span>
+                      </p>
+                    )}
                   </div>
                   <div className="text-right">
                     <div className="font-display text-2xl text-bronze-300">{g.amount}</div>
@@ -75,6 +164,13 @@ export default function FundingPage() {
             </Card>
           ))}
         </div>
+        {grants.length === 0 && (
+          <p className="mt-6 text-sm text-muted-foreground">
+            No public grants yet. As the platform ships, every grant —
+            awarded, pending, or declined — will surface here from
+            {" "}<code>funding_applications</code>.
+          </p>
+        )}
       </section>
 
       <section className="mt-16">
@@ -86,9 +182,10 @@ export default function FundingPage() {
               <div>
                 <p className="font-medium">Live application pipeline</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  We track 19 active NZ funding rounds in our internal
-                  <code> TRACKER.md</code>. Active applications populate this
-                  page once the cron-driven funding radar ships.
+                  Active applications surface here as they move through
+                  the pipeline. See the
+                  {" "}<a href="/transparency" className="text-bronze-300 underline hover:text-bronze-200">transparency</a> page for
+                  the full changelog.
                 </p>
               </div>
             </div>

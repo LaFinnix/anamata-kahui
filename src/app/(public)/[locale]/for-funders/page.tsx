@@ -2,8 +2,74 @@ import Link from "next/link";
 import { ArrowRight, Calendar, FileCheck2, Shield, GraduationCap, Building2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+import { createAdminClient } from "@/lib/supabase/clients";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+
+/**
+ * /for-funders — public decision-support page.
+ *
+ * Most content is static translation. The two data-driven pieces are:
+ *
+ *   1. The "Released catalog" card (live `releases` count) — used to
+ *      say "5 released, 24 in catalog" which was stale and wrong
+ *      (DB has 4 released, 8 published, 24 total). Pulled live now.
+ *
+ *   2. The "Data as of" badge in the page header — the timestamp the
+ *      funder can cite as "this is what the platform looked like at
+ *      X o'clock on Y date." Refreshes on the 5-minute revalidate.
+ */
+
+interface ForFundersStats {
+  releasedCount: number;
+  scheduledCount: number;
+  publishedCount: number; // released + scheduled
+  catalogCount: number; // everything except draft
+  totalReleases: number;
+  dataAsOf: string;
+}
+
+async function getForFundersStats(): Promise<ForFundersStats> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("releases")
+    .select("status", { count: "exact" });
+  if (error || !data) {
+    // If the query fails, return zeros — the page must render even
+    // when the database is briefly unavailable.
+    console.error("[/for-funders stats]", error?.message);
+    return {
+      releasedCount: 0,
+      scheduledCount: 0,
+      publishedCount: 0,
+      catalogCount: 0,
+      totalReleases: 0,
+      dataAsOf: new Date().toISOString(),
+    };
+  }
+  // data here is just an array of { status } rows; we count client-side.
+  const counts = {
+    draft: 0,
+    scheduled: 0,
+    released: 0,
+    archived: 0,
+  } as Record<string, number>;
+  for (const row of data as Array<{ status: string }>) {
+    counts[row.status] = (counts[row.status] ?? 0) + 1;
+  }
+  const released = counts.released ?? 0;
+  const scheduled = counts.scheduled ?? 0;
+  const draft = counts.draft ?? 0;
+  const archived = counts.archived ?? 0;
+  return {
+    releasedCount: released,
+    scheduledCount: scheduled,
+    publishedCount: released + scheduled,
+    catalogCount: released + scheduled + archived,
+    totalReleases: released + scheduled + draft + archived,
+    dataAsOf: new Date().toISOString(),
+  };
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -14,12 +80,27 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
+export const revalidate = 300; // 5-minute refresh of the live stats
+
 export default async function ForFundersPage() {
   const t = await getTranslations("forFunders");
+  const stats = await getForFundersStats();
+  const dataAsOfDisplay = new Date(stats.dataAsOf).toLocaleString("en-NZ", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   return (
     <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 lg:px-8">
-      <Badge variant="outline" className="mb-4">For funders · decision support</Badge>
-      <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <Badge variant="outline">For funders · decision support</Badge>
+        <Badge variant="secondary" className="text-xs font-normal">
+          Data as of {dataAsOfDisplay} (NZST)
+        </Badge>
+      </div>
+      <h1 className="text-balance text-4xl font-display text-foreground font-semibold tracking-tight sm:text-5xl">
         {t("title")}
       </h1>
       <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
@@ -27,6 +108,12 @@ export default async function ForFundersPage() {
       </p>
 
       <section className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <EvidenceCard
+          href="/for-funders/tour"
+          title="System tour"
+          description="Six screens, end to end: how a waiata moves through the kāhui from kaikōrero joining to public cultural lineage."
+          icon={Calendar}
+        />
         <EvidenceCard
           href="/kaitiakitanga"
           title="Cultural posture"
@@ -41,8 +128,8 @@ export default async function ForFundersPage() {
         />
         <EvidenceCard
           href="/evidence"
-          title="Named partners"
-          description="Maurea, Arts Access Aotearoa, MMIC, SoundCheck Aotearoa, Otago Polytechnic, WordsWorth. Each with role, organisation, status."
+          title="Funders we work with"
+          description="Creative NZ, Education NZ, NZ On Air, and takiridevelopments. Each funder with role, round, and platform alignment."
           icon={Building2}
         />
         <EvidenceCard
@@ -60,7 +147,7 @@ export default async function ForFundersPage() {
         <EvidenceCard
           href="/waiata"
           title="Released catalog"
-          description="5 released waiata, 24 in catalog. Each release carries cultural-review lineage, kaitiaki gate, language code."
+          description={`${stats.releasedCount} released waiata, ${stats.publishedCount} published (released + scheduled), ${stats.catalogCount} in catalog. Each release carries cultural-review lineage, kaitiaki gate, language code.`}
           icon={Calendar}
         />
       </section>
@@ -139,7 +226,7 @@ export default async function ForFundersPage() {
             <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-bronze-300" />
             <div>
               <strong>Creative NZ International Engagement Fund</strong>
-              {" "}— new for 2026, criteria TBA.
+              {" "}— round dates announced on the Creative NZ website.
             </div>
           </li>
           <li className="flex items-start gap-3 rounded-md border border-border bg-card p-4">
@@ -192,9 +279,9 @@ export default async function ForFundersPage() {
             <h3 className="font-display text-xl">Multi-funder compatible</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Schema and evidence surface designed to satisfy Creative NZ,
-              NZ On Air, Te Mātāwai, Asia NZ Foundation, Royal Society Te
-              Apārangi, HRC, and Marsden Fund simultaneously. One
-              investment serves many subsequent rounds.
+              Education NZ, NZ On Air, and takiridevelopments
+              simultaneously. One investment serves many subsequent
+              rounds.
             </p>
           </div>
           <div className="rounded-md border border-border bg-card p-6">

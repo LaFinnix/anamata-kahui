@@ -40,7 +40,16 @@ export default async function ImpactPage() {
       .select("id", { count: "exact", head: true })
       .eq("status", "released")
       .not("iwi_consent_id", "is", null),
-    admin.from("iwi_gates").select("id", { count: "exact", head: true }).eq("status", "active"),
+    // NB: iwi_gates has no `status` column. "Active" is implicit:
+    // a gate is active when it has not been revoked AND it has not
+    // passed its expiry (expires_at is nullable for never-expiring gates).
+    // The previous .eq("status", "active") filter was a silent no-op
+    // because the column doesn't exist.
+    admin
+      .from("iwi_gates")
+      .select("id", { count: "exact", head: true })
+      .is("revoked_at", null)
+      .or("expires_at.is.null,expires_at.gt.now()"),
     admin.from("consent_log").select("id", { count: "exact", head: true }),
     admin.from("data_governance_log").select("id", { count: "exact", head: true }).eq("published", true),
     admin.from("research_field_projects").select("id", { count: "exact", head: true }).eq("status", "active"),
@@ -79,7 +88,18 @@ export default async function ImpactPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
-      <Badge variant="outline" className="mb-4">Live · public outcomes</Badge>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <Badge variant="outline">Live · public outcomes</Badge>
+        <Badge variant="secondary" className="text-xs font-normal">
+          Refreshed {new Date().toLocaleString("en-NZ", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })} (NZST) — re-runs every 5 min
+        </Badge>
+      </div>
       <h1 className="text-balance text-4xl font-display font-semibold tracking-tight sm:text-5xl">
         Impact
       </h1>
@@ -107,7 +127,7 @@ export default async function ImpactPage() {
             label="Top markets"
             value={reachUnavailable ? "—" : "—"}
             icon={Globe2}
-            sublabel="NZ · AU · US · JP · CA"
+            sublabel="Awaiting Spotify + Apple ingestion"
           />
           <Metric
             label="Active listeners / 30d"
@@ -180,7 +200,7 @@ export default async function ImpactPage() {
             label="Scholarship engagements"
             value={String(scholarship)}
             icon={Users}
-            sublabel="PMSA + Asia NZ portfolio"
+            sublabel="Industry portfolio engagements"
           />
         </div>
       </section>

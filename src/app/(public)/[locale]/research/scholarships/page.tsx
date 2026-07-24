@@ -161,8 +161,9 @@ export default function ScholarshipsPage() {
               <GraduationCap className="h-5 w-5 text-bronze-300" />
               <CardTitle>Creative NZ International Engagement Fund</CardTitle>
               <CardDescription>
-                New for 2026. International engagement. Criteria TBA
-                before open.
+                New for 2026. International engagement. Round dates
+                and criteria are published on the Creative NZ website
+                when announced.
               </CardDescription>
             </CardHeader>
             <CardContent>

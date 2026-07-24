@@ -6,10 +6,14 @@ export const metadata = { title: "Evidence — Partners" };
 /**
  * Public partner profiles — per audit §2.5.
  *
- * These are the named partners from the 2026 winning Creative NZ Development
- * Fund application. Making them public:
+ * Partner list is currently under review (2026-08 audit window). The
+ * entries below are the published set as of the last update; the
+ * platform is verifying each entry with the named individual or
+ * organisation before the next round of funder reports.
+ *
+ * Making them public:
  *   - Lets partners verify and amplify the engagement.
- *   - Demonstrates sector connectedness (MMIC, SoundCheck, Otago Poly).
+ *   - Demonstrates sector connectedness.
  *   - Gives funders something to click through during due diligence.
  *
  * Profile content is conservative — only roles and programmes the partner
@@ -18,7 +22,7 @@ export const metadata = { title: "Evidence — Partners" };
  */
 const PARTNERS = [
   {
-    name: "Stace Robertson",
+    name: "TBC 2014 under verification",
     role: "Lead Accessibility Advisor",
     organisation: "Arts Access Aotearoa",
     bio: "National lead on the 'Arts For All' framework. Reviews Anamata Kāhui's accessibility statement quarterly and advises on universal design for the artist portal.",

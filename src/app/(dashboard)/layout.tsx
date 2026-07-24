@@ -23,6 +23,11 @@ import {
   Library,
   Compass,
   ChevronDown,
+  UserCircle,
+  Award,
+  Megaphone,
+  Bell,
+  Settings,
 } from "lucide-react";
 
 import { createServerSupabase } from "@/lib/supabase/clients";
@@ -32,6 +37,8 @@ import type { UserRole } from "@/lib/types";
 import { getActiveContext, BRANCH_LABELS, BRANCH_ROLE_LABELS, type BranchSlug, type BranchRole } from "@/lib/auth/active-context";
 import { BranchSwitcher } from "@/components/kahui/branch-switcher";
 import { DashboardMobileNav } from "@/components/admin/dashboard-mobile-nav";
+import { NotificationBell } from "@/components/notifications/notification-bell";
+import { listMyNotifications, countUnreadNotifications } from "@/lib/queries/notifications";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -69,6 +76,21 @@ const NAV_GROUPS: NavGroup[] = [
     roles: ["super_admin"],
     items: [
       { href: "/admin", label: "Cross-branch overview", icon: Compass },
+    ],
+  },
+  {
+    label: "Kaikōrero",
+    icon: UserCircle,
+    // Visible to everyone authed — every creator across every branch can
+    // declare their cultural-knowledge areas. This is the discovery surface
+    // for the cross-iwi collaboration marketplace.
+    items: [
+      { href: "/kaikorero/profile", label: "My profile", icon: UserCircle },
+      { href: "/kaikorero/roster", label: "My roster", icon: Users },
+      { href: "/endorsements", label: "Endorsements", icon: Award },
+      { href: "/tono", label: "Tono board", icon: Megaphone },
+      { href: "/notifications", label: "Notifications", icon: Bell },
+      { href: "/notifications/preferences", label: "Preferences", icon: Settings },
     ],
   },
   {
@@ -124,6 +146,10 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/admin/news", label: "News", icon: Newspaper },
       { href: "/admin/members", label: "Members & branches", icon: Users },
       { href: "/admin/kaitiaki", label: "Cultural review", icon: ShieldCheck },
+      { href: "/admin/records", label: "Artist roster", icon: Users },
+      { href: "/admin/contracts", label: "Contracts", icon: FileText },
+      { href: "/admin/policies", label: "Policies", icon: ShieldCheck },
+      { href: "/admin/demos", label: "Demo review", icon: Mic2 },
       { href: "/admin/hub-sync", label: "Hub sync", icon: BookOpen },
     ],
   },
@@ -195,6 +221,13 @@ export default async function DashboardLayout({
     branch_slug: m.branch_slug,
     role_in_branch: m.role_in_branch,
   }));
+
+  // Notifications for the bell — server-rendered initial state. Client polls
+  // every 60s after mount. v1.1 limits to 10 most recent for the dropdown.
+  const [notifications, unreadCount] = await Promise.all([
+    listMyNotifications({ limit: 10 }),
+    countUnreadNotifications(),
+  ]);
 
   // Filter groups: role + branch membership
   const visibleGroups = NAV_GROUPS.filter((group) => {
@@ -276,6 +309,10 @@ export default async function DashboardLayout({
                 Full access
               </Badge>
             )}
+            <NotificationBell
+              initialNotifications={notifications}
+              initialUnreadCount={unreadCount}
+            />
           </div>
           {/* Branch membership chips */}
           {branchSlugs.size > 0 && (
@@ -300,7 +337,13 @@ export default async function DashboardLayout({
               Anamata Kāhui
             </Link>
           </div>
-          <LogoutButton />
+          <div className="flex items-center gap-2">
+            <NotificationBell
+              initialNotifications={notifications}
+              initialUnreadCount={unreadCount}
+            />
+            <LogoutButton />
+          </div>
         </header>
         <main className="flex-1 overflow-auto p-4 sm:p-6 md:p-8">{children}</main>
       </div>

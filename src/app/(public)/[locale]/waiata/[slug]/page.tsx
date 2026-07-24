@@ -132,6 +132,20 @@ export default async function WaiataPage({ params }: PageProps) {
     .eq("release_id", release.id)
     .eq("status", "active");
 
+  // Endorsements anchored to this work (release-anchored, active only).
+  // RLS: endorsements_read_public allows anon read. Order most-recent-first.
+  const { data: endorsements } = await supabase
+    .from("endorsements")
+    .select(
+      `id, endorsement_type, knowledge_domain, scope_iwi, scope_region, status, notes, created_at,
+       endorser:endorser_id ( id, full_name, role, iwi_affiliation_attested )`,
+    )
+    .eq("work_id", release.id)
+    .eq("work_type", "release")
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
   const meta = (release.metadata ?? {}) as {
     slug?: string;
     source?: string;
@@ -177,6 +191,60 @@ export default async function WaiataPage({ params }: PageProps) {
           </div>
         )}
       </section>
+
+      {/* Endorsement ribbon — above the fold for funder visibility */}
+      {(endorsements ?? []).length > 0 && (
+        <section className="not-prose mt-6 rounded-lg border border-bronze-400/40 bg-bronze-400/5 p-4">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-bronze-300">
+            <Shield className="h-4 w-4" />
+            With cultural guidance from
+          </div>
+          <ul className="mt-2 space-y-1.5 text-sm">
+            {(endorsements ?? []).slice(0, 4).map((e) => {
+              const endorserRaw = e.endorser as unknown;
+              const endorser = Array.isArray(endorserRaw) ? endorserRaw[0] : endorserRaw;
+              const attested =
+                (endorser as { iwi_affiliation_attested?: string[] | null } | null)
+                  ?.iwi_affiliation_attested ?? [];
+              const name =
+                (endorser as { full_name?: string | null } | null)?.full_name ??
+                "Anonymous kāhui member";
+              const firstIwi = attested[0];
+              return (
+                <li key={e.id} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                  <span className="font-medium">{name}</span>
+                  {firstIwi && (
+                    <Badge variant="secondary" className="text-xs">
+                      {firstIwi}
+                    </Badge>
+                  )}
+                  <span className="text-xs text-muted-foreground">
+                    {e.endorsement_type === "co_creator"
+                      ? "co-creator"
+                      : e.endorsement_type === "cultural_endorsement"
+                        ? "cultural endorsement"
+                        : e.endorsement_type === "blessing"
+                          ? "blessing"
+                          : e.endorsement_type === "source_of_knowledge"
+                            ? "source of knowledge"
+                            : e.endorsement_type === "verification"
+                              ? "verification"
+                              : e.endorsement_type === "translation"
+                                ? "translation"
+                                : "mentorship"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          {(endorsements ?? []).length > 4 && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              + {(endorsements ?? []).length - 4} more endorsement
+              {(endorsements ?? []).length - 4 === 1 ? "" : "s"} on this waiata
+            </p>
+          )}
+        </section>
+      )}
 
       {/* Cultural provenance hero — above the fold for funder visibility */}
       {(labelLinks ?? []).length > 0 && (

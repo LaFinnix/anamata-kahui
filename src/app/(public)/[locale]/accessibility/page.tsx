@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 export const metadata = {
   title: "Accessibility",
   description:
-    "Anamata Kāhui's WCAG 2.2 AA accessibility statement — trilingual production (English, te reo Māori, NZSL), Easy Read, and quarterly review by Arts Access Aotearoa.",
+    "Anamata Kāhui's WCAG 2.2 AA accessibility statement — trilingual production (English, te reo Māori, NZSL), Easy Read, and quarterly review by Arts Access Aotearoa. Reviewer identity currently under verification.",
 };
 
 /**
@@ -12,7 +12,7 @@ export const metadata = {
  * accessibility-as-evidence (Creative NZ Community Access, Arts Access
  * Aotearoa, Te Haeata). Lives at /accessibility.
  *
- * Reviewed by: Stace Robertson (Arts Access Aotearoa), 2026 Q3 review window.
+ * Reviewer identity currently under verification (2026-08 audit).
  */
 export default function AccessibilityPage() {
   return (
@@ -22,7 +22,7 @@ export default function AccessibilityPage() {
         Accessibility statement
       </h1>
       <p className="mt-4 text-sm text-muted-foreground">
-        Last reviewed: 22 July 2026 · Reviewer: Stace Robertson, Arts Access
+        Last reviewed: 22 July 2026 · Reviewer: under verification
         Aotearoa · Next review: October 2026
       </p>
 
