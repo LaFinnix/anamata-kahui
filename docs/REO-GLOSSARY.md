@@ -34,6 +34,8 @@ example usage.
 
 | Kupu | English gloss | Use in |
 |---|---|---|
+| kai- | prefix meaning "carrier of" / "person who does" | kaikōrero (cultural collaborator), kaiwaiata (singer), kaihaka (performer) |
+| kaikōrero | cultural collaborator / knowledge-carrier | `/kaikorero/profile`, `/[locale]/artist` directory, "Kaikōrero" dashboard nav group |
 | kaitiaki | guardian / custodian | role name (`kaitiaki` role); everywhere |
 | kaitiakitanga | guardianship / custodianship | `/kaitiakitanga` page title; principle name |
 | kaitiaki rōpū | guardians group | governance body |

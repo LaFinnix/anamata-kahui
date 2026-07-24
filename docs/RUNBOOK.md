@@ -153,3 +153,138 @@ Until Vercel + Supabase monitoring is wired:
 | Database corruption | 4 hours (Supabase restore) |
 | DNS misconfiguration | 30 minutes |
 | Auth outage | 1 hour (Supabase SLA) |
+
+---
+
+## Collaboration marketplace — operations notes
+
+Shipped 2026-07-23 across four phases (0–4). Full design rationale is in
+`docs/COLLABORATION-MARKETPLACE-PLAN.md`, sequencing in
+`docs/COLLABORATION-MARKETPLACE-PHASES.md`, operational rules in
+`docs/COLLABORATION-MARKETPLACE-RUNBOOK.md`.
+
+### Migrations (apply in order)
+
+| Migration | What it adds |
+|---|---|
+| `0025_collaboration_marketplace.sql` | `knowledge_domain` enum, `profile_knowledge_areas`, profile column extensions (incl. `iwi_affiliation_claimed` + `iwi_affiliation_attested`), `profiles.role` extended to include `kaitiaki`, `is_kaitiaki()` helper |
+| `0026_endorsements.sql` | `endorsement_type` + `endorsement_status` + `endorsement_work_type` enums, `endorsements` table, revocation-only trigger |
+| `0027_tono.sql` | `tono_status` + `tono_help_type` + `tono_visibility` + `proposal_status` enums, `tono` + `tono_invitees` + `tono_proposals` tables, RLS |
+| `0028_notifications.sql` | `notifications` table for in-platform notification feed (email fanout is v2) |
+| `0029_tono_rls_fix.sql` | **REQUIRED FIX** — breaks infinite recursion between `tono` and `tono_invitees` policies. See "Critical: 0029 RLS fix" below. |
+
+All migrations are idempotent. Apply with `npm run db:push` (Supabase CLI)
+or via direct psql. The `apply.js` script in the developer tmp directory
+documents the runner.
+
+### Critical: 0029 RLS fix
+
+**Without migration 0029, every query against `tono` or `tono_invitees` fails
+with `infinite recursion detected in policy for relation "tono"`.**
+
+**Root cause:** Migration 0027's `tono_read` policy subqueries
+`tono_invitees` (invitee check), and `tono_invitees_read` policy subqueries
+`tono` (creator check). Postgres detects the cycle and refuses all queries
+against either table. The bug would have manifested as soon as anyone
+tried to use the tono board.
+
+**Fix shipped (0029):** Created three `SECURITY DEFINER` helper functions
+(`is_tono_creator`, `is_tono_invitee`, `user_attested_has_iwi`) that bypass
+RLS internally. Both policies rewritten to use these helpers.
+
+**Operational rule:** **Never skip migration 0029.** If you're applying
+migrations manually, ensure 0025 → 0026 → 0027 → 0028 → 0029 in order.
+
+### Phase 0 critical finding
+
+The `profiles.role` CHECK constraint in migration `0001_initial_schema.sql`
+did **not** include `'kaitiaki'` even though `src/lib/actions/cultural-review.ts`
+already referenced `role = 'kaitiaki'`. Migration `0025` drops and recreates
+the constraint to include `'kaitiaki'`. **Without 0025, the cultural-review
+action silently fails for any kaitiaki user.**
+
+### Cultural-review auto-endorsement failure handling
+
+When a kaitiaki approves a release, the cultural-review action
+(`src/lib/actions/cultural-review.ts`) auto-creates `co_creator` endorsements
+for each `split_participants` row with a `profile_id`. Failure is
+**logged but does not undo the cultural-review decision**. The audit row
+in `cultural_review_cycles` is sacred; endorsements are derived state.
+
+The same pattern applies to tono fulfillment
+(`src/lib/actions/tono.ts` → `fulfillTonoAction`).
+
+### Visibility filters (security-critical)
+
+The `iwi_specific` visibility tier on `tono` and the `attested vs claimed`
+split on iwi affiliations are core to the §4.9 defence model. Do not bypass
+them.
+
+- `profiles.iwi_affiliation_claimed` — what the user typed (immediate)
+- `profiles.iwi_affiliation_attested` — promoted set (30 days + signal, OR
+  kaitiaki roster, OR endorsed by attested member)
+- `iwi_specific` tono visibility checks the **attested** set, never claimed
+
+Helper: `public.user_attested_has_iwi(text)` is the canonical check. Use it
+rather than re-implementing in application code.
+
+### Endorsement revocation semantics
+
+The `endorsements_allow_revocation_only()` trigger restricts UPDATE to:
+- `status` (active → revoked)
+- `revoked_reason`
+- `revoked_at`
+
+All other fields are append-only. If you need to "edit" an endorsement,
+revoke it (with reason) and create a new one. The revoked row stays in
+the lineage with the reason visible.
+
+### Notifications table usage
+
+`public.notifications` is the in-platform notification feed. Email fanout
+is v2 (deferred until Resend is configured). The kind values are short
+strings (not a PG enum) so new kinds can be added without a migration.
+Current kinds: `endorsement_received`, `endorsement_revoked`,
+`tono_proposal_received`, `tono_proposal_accepted`, `tono_proposal_declined`,
+`tono_fulfilled`. Add to the runbook addendum when introducing new ones.
+
+### Dashboard routes (Phase 1–3 additions)
+
+| Route | Auth | Notes |
+|---|---|---|
+| `/kaikorero/profile` | Any authed user | Edit own kaikōrero profile. Two opt-in toggles required for public visibility. |
+| `/endorsements` | Any authed user | Given + Received tabs. Revoke form (reason required). |
+| `/tono` | Any authed user | My tono board. Status counts + active/resolved sections. |
+| `/tono/new` | Any authed user | Compose tono. Visibility tier (open / iwi_specific / invited). |
+| `/tono/inbox` | Any authed user | Open tono you can help on. iwi_specific filtered by attested set. |
+| `/tono/[id]` | View-scoped by RLS | Detail. Perspective-aware (creator vs helper). |
+
+### Public surfaces (Phase 1–3 additions)
+
+| Route | Auth | Notes |
+|---|---|---|
+| `/[locale]/artist` (updated) | Public | Now has filter UI (`?domain=…&iwi=…`). Server-side filtering via search params. |
+| `/[locale]/artist/[id]` (updated) | Public | 404 if either `kaikorero_visible` OR `opted_in_public_directory` is false. Shows knowledge areas + contribution lineage + **resolved tono** (fulfilled/closed/withdrawn — never open). |
+
+### Quick troubleshooting
+
+**Tono / tono_invitees queries return `infinite recursion detected in policy for relation "tono"`.**
+Migration 0029 hasn't been applied. Apply it.
+
+**Kaitiaki can't approve a release (role check fails).**
+Migration 0025 hasn't been applied. The `profiles.role` CHECK constraint
+doesn't include `'kaitiaki'` without it.
+
+**Endorsement update fails with "endorsements are append-only — only status, revoked_reason, revoked_at may change".**
+You're trying to UPDATE a non-revocation field. Revoke and create new, or
+check the migration 0026 trigger definition.
+
+**iwi_specific tono appears to non-attested users.**
+Check `user_attested_has_iwi()` (migration 0029) is being used, not a
+direct `iwi_affiliation_attested` query. The application-layer
+`filterByIwiVisibility` in `src/lib/queries/tono.ts` does this correctly.
+
+**Auto-endorsement didn't fire on cultural-review approval.**
+Check the application logs (`src/lib/actions/cultural-review.ts`) for
+`console.error` output. The cultural-review audit row stands regardless
+of endorsement insert failure — investigate manually if needed.
